@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Josh Chou - Interactive Portfolio</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+
+        #dialogue-box {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        #dialogue-box h3 {
+            margin: 0 0 10px 0;
+            color: #4169e1;
+        }
+
+        #dialogue-content {
+            margin: 10px 0;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dialogue-option {
+            background: #f0f0f0;
+            border: 2px solid #4169e1;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dialogue-option:hover {
+            background: #4169e1;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        #custom-question-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        #custom-question-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #4169e1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        #custom-question-submit {
+            background: #4169e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #custom-question-submit:hover {
+            background: #3557c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #custom-question-submit:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(65, 105, 225, 0.3);
+            border-radius: 50%;
+            border-top-color: #4169e1;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .instruction {
+            opacity: 0.8;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        #interaction-prompt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .floating-text {
+            position: absolute;
+            color: #ff0;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 2s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="ui-overlay">
+        <h2 id="title">Josh Chou's Office</h2>
+        <p style="font-size: 20px;" id="subtitle">💼 Interactive Portfolio</p>
+        <p id="move-instruction">Use WASD to move around</p>
+        <p id="look-instruction">Arrow keys or mouse to look left/right</p>
+        <p id="interact-instruction">Press E to interact</p>
+        <p id="dance-instruction">Press SPACE to jump</p>
+        <p id="close-instruction">Press ESC to close dialogs/release mouse</p>
+        <p class="instruction" style="margin-top: 10px;" id="tip-instruction">💡 Ask me anything about my background!</p>
+    </div>
+
+    <div id="dialogue-box">
+        <h3 id="dialogue-name">Name</h3>
+        <div id="dialogue-content">Content</div>
+        <div id="dialogue-options"></div>
+        <div id="custom-question-container">
+            <p style="margin: 5px 0; font-size: 14px; opacity: 0.8; text-align: center;" id="custom-question-divider">━━━ Or ask your own question ━━━</p>
+            <input type="text" id="custom-question-input" placeholder="Ask me about my experience, skills, projects, or anything else!" maxlength="200">
+            <button id="custom-question-submit">Ask Question</button>
+        </div>
+    </div>
+
+    <div id="interaction-prompt"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        console.log('Starting Josh Chou Interactive Portfolio...');
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf5f5f5);
+        scene.fog = new THREE.Fog(0xf5f5f5, 10, 50);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.6, 5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        console.log('Scene, camera, and renderer initialized');
+
+        // Floating text effect
+        function createFloatingText(text, worldPos) {
+            const screenPos = worldPos.clone();
+            screenPos.project(camera);
+
+            const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+
+            const div = document.createElement('div');
+            div.className = 'floating-text';
+            div.textContent = text;
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            document.body.appendChild(div);
+
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(10, 15, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.near = 0.1;
+        directionalLight.shadow.camera.far = 50;
+        directionalLight.shadow.camera.left = -30;
+        directionalLight.shadow.camera.right = 30;
+        directionalLight.shadow.camera.top = 30;
+        directionalLight.shadow.camera.bottom = -30;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        scene.add(directionalLight);
+
+        // Floor with pattern
+        const floorGeometry = new THREE.PlaneGeometry(40, 40);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0xdcdcdc,
+            roughness: 0.7,
+            metalness: 0.1
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Add floor tiles pattern
+        const tileGeometry = new THREE.PlaneGeometry(2, 2);
+        const tileMaterial1 = new THREE.MeshStandardMaterial({ color: 0xe8e8e8 });
+        const tileMaterial2 = new THREE.MeshStandardMaterial({ color: 0xf0f0f0 });
+
+        for (let x = -20; x < 20; x += 2) {
+            for (let z = -20; z < 20; z += 2) {
+                const tile = new THREE.Mesh(tileGeometry, ((x + z) / 2) % 2 === 0 ? tileMaterial1 : tileMaterial2);
+                tile.position.set(x + 1, 0.01, z + 1);
+                tile.rotation.x = -Math.PI / 2;
+                tile.receiveShadow = true;
+                scene.add(tile);
+            }
+        }
+
+        // Walls with windows
+        const wallMaterial = new THREE.MeshStandardMaterial({
+            color: 0xf8f8f8,
+            roughness: 0.9
+        });
+
+        const windowMaterial = new THREE.MeshStandardMaterial({
+            color: 0x87ceeb,
+            transparent: true,
+            opacity: 0.3,
+            roughness: 0.1,
+            metalness: 0.5
+        });
+
+        // Back wall with windows
+        const backWall = new THREE.Mesh(
+            new THREE.PlaneGeometry(40, 10),
+            wallMaterial
+        );
+        backWall.position.set(0, 5, -20);
+        backWall.receiveShadow = true;
+        scene.add(backWall);
+
+        // Add windows to back wall
+        for (let x = -15; x <= 15; x += 10) {
+            const window = new THREE.Mesh(
+                new THREE.PlaneGeometry(4, 3),
+                windowMaterial
+            );
+            window.position.set(x, 5, -19.9);
+            scene.add(window);
+        }
+
+        // Side walls
+        const leftWall = new THREE.Mesh(
+            new THREE.PlaneGeometry(40, 10),
+            wallMaterial
+        );
+        leftWall.position.set(-20, 5, 0);
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.receiveShadow = true;
+        scene.add(leftWall);
+
+        const rightWall = new THREE.Mesh(
+            new THREE.PlaneGeometry(40, 10),
+            wallMaterial
+        );
+        rightWall.position.set(20, 5, 0);
+        rightWall.rotation.y = -Math.PI / 2;
+        rightWall.receiveShadow = true;
+        scene.add(rightWall);
+
+        // Front wall
+        const frontWall = new THREE.Mesh(
+            new THREE.PlaneGeometry(40, 10),
+            wallMaterial
+        );
+        frontWall.position.set(0, 5, 20);
+        frontWall.rotation.y = Math.PI;
+        frontWall.receiveShadow = true;
+        scene.add(frontWall);
+
+        // Office furniture
+        const woodMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8b6914,
+            roughness: 0.6,
+            metalness: 0.1
+        });
+
+        const metalMaterial = new THREE.MeshStandardMaterial({
+            color: 0x404040,
+            roughness: 0.3,
+            metalness: 0.8
+        });
+
+        // Create a single main desk for Josh
+        function createMainDesk(x, z) {
+            const deskGroup = new THREE.Group();
+
+            // Desk top
+            const deskTop = new THREE.Mesh(
+                new THREE.BoxGeometry(3, 0.1, 1.5),
+                woodMaterial
+            );
+            deskTop.position.y = 0.75;
+            deskTop.castShadow = true;
+            deskTop.receiveShadow = true;
+            deskGroup.add(deskTop);
+
+            // Metal frame
+            const frameGeometry = new THREE.BoxGeometry(0.05, 0.7, 0.05);
+            const framePositions = [
+                [-1.45, 0.35, -0.7],
+                [1.45, 0.35, -0.7],
+                [-1.45, 0.35, 0.7],
+                [1.45, 0.35, 0.7]
+            ];
+
+            framePositions.forEach(pos => {
+                const frame = new THREE.Mesh(frameGeometry, metalMaterial);
+                frame.position.set(...pos);
+                frame.castShadow = true;
+                deskGroup.add(frame);
+            });
+
+            // Computer monitor (dual setup)
+            const monitorBase1 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.15, 0.15, 0.05, 16),
+                metalMaterial
+            );
+            monitorBase1.position.set(-0.5, 0.82, 0);
+            deskGroup.add(monitorBase1);
+
+            const monitorBase2 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.15, 0.15, 0.05, 16),
+                metalMaterial
+            );
+            monitorBase2.position.set(0.5, 0.82, 0);
+            deskGroup.add(monitorBase2);
+
+            const monitorStand1 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 0.3, 0.05),
+                metalMaterial
+            );
+            monitorStand1.position.set(-0.5, 0.95, 0);
+            deskGroup.add(monitorStand1);
+
+            const monitorStand2 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 0.3, 0.05),
+                metalMaterial
+            );
+            monitorStand2.position.set(0.5, 0.95, 0);
+            deskGroup.add(monitorStand2);
+
+            const monitorScreen1 = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.7, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1, metalness: 0.5 })
+            );
+            monitorScreen1.position.set(-0.5, 1.3, 0);
+            deskGroup.add(monitorScreen1);
+
+            const monitorScreen2 = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.7, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1, metalness: 0.5 })
+            );
+            monitorScreen2.position.set(0.5, 1.3, 0);
+            deskGroup.add(monitorScreen2);
+
+            // Keyboard
+            const keyboard = new THREE.Mesh(
+                new THREE.BoxGeometry(0.4, 0.02, 0.15),
+                metalMaterial
+            );
+            keyboard.position.set(0, 0.81, 0.3);
+            deskGroup.add(keyboard);
+
+            // Chair
+            const chairSeat = new THREE.Mesh(
+                new THREE.BoxGeometry(0.5, 0.05, 0.5),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            chairSeat.position.set(0, 0.5, 0.8);
+            deskGroup.add(chairSeat);
+
+            const chairBack = new THREE.Mesh(
+                new THREE.BoxGeometry(0.5, 0.6, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            chairBack.position.set(0, 0.8, 1.02);
+            deskGroup.add(chairBack);
+
+            // Coffee mug
+            const mug = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 0.1, 8),
+                new THREE.MeshStandardMaterial({ color: 0x8b4513 })
+            );
+            mug.position.set(0.8, 0.85, 0.2);
+            deskGroup.add(mug);
+
+            // Notebook
+            const notebook = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 0.01, 0.3),
+                new THREE.MeshStandardMaterial({ color: 0x4169e1 })
+            );
+            notebook.position.set(-0.8, 0.81, 0.2);
+            deskGroup.add(notebook);
+
+            deskGroup.position.set(x, 0, z);
+            return deskGroup;
+        }
+
+        // Add Josh's main desk
+        const mainDesk = createMainDesk(0, -5);
+        scene.add(mainDesk);
+
+        // Add whiteboard with "Josh Chou" written on it
+        const whiteboardMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.2,
+            metalness: 0.1
+        });
+
+        const whiteboard = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 2, 0.1),
+            whiteboardMaterial
+        );
+        whiteboard.position.set(0, 3, -19.8);
+        whiteboard.castShadow = true;
+        scene.add(whiteboard);
+
+        // Gallery System - Multiple Interactive Paintings Around the Walls
+        console.log('Setting up interactive gallery system...');
+
+        const paintings = [];
+        const paintingData = [
+            // Back wall paintings
+            { id: 'painting1', name: 'Art Piece 1', position: [8, 4, -19.7], size: [4, 3], media: null },
+            { id: 'painting2', name: 'Art Piece 2', position: [-8, 4, -19.7], size: [3, 2.5], media: null },
+            { id: 'painting3', name: 'Art Piece 3', position: [0, 6, -19.7], size: [2.5, 2], media: null },
+
+            // Left wall paintings
+            { id: 'painting4', name: 'Art Piece 4', position: [-19.7, 4, -8], size: [3, 2.5], media: null, rotation: [0, Math.PI/2, 0] },
+            { id: 'painting5', name: 'Art Piece 5', position: [-19.7, 4, 5], size: [2.5, 2], media: null, rotation: [0, Math.PI/2, 0] },
+
+            // Right wall paintings
+            { id: 'painting6', name: 'Art Piece 6', position: [19.7, 4, -5], size: [3, 2.5], media: null, rotation: [0, -Math.PI/2, 0] },
+            { id: 'painting7', name: 'Art Piece 7', position: [19.7, 4, 8], size: [2.5, 2], media: null, rotation: [0, -Math.PI/2, 0] },
+
+            // Front wall paintings
+            { id: 'painting8', name: 'Art Piece 8', position: [-6, 4, 19.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+            { id: 'painting9', name: 'Art Piece 9', position: [6, 4, 19.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+        ];
+
+        // Create default fallback material for empty paintings
+        function createEmptyPaintingMaterial(paintingName) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+            gradient.addColorStop(0, '#f0f0f0');
+            gradient.addColorStop(1, '#d0d0d0');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Add text
+            ctx.fillStyle = '#666';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Portfolio Image', 256, 200);
+            ctx.font = '24px Arial';
+            ctx.fillText(paintingName, 256, 240);
+            ctx.fillText('📷', 256, 300);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+        }
+
+        // Create uniform paintings
+        function createPainting(data) {
+            // Create frame (all frames are identical brown wood)
+            const frameGeometry = new THREE.BoxGeometry(data.size[0] + 0.2, data.size[1] + 0.2, 0.15);
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8b4513, // Brown wood color for all frames
+                roughness: 0.6,
+                metalness: 0.1
+            });
+            const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+            frame.position.set(...data.position.map((p, i) => i === 2 ? p - 0.1 : p));
+            if (data.rotation) frame.rotation.set(...data.rotation);
+            frame.castShadow = true;
+            scene.add(frame);
+
+            // Create painting with empty material
+            const paintingGeometry = new THREE.PlaneGeometry(...data.size);
+            const painting = new THREE.Mesh(paintingGeometry, createEmptyPaintingMaterial(data.name));
+            painting.position.set(...data.position);
+            if (data.rotation) painting.rotation.set(...data.rotation);
+            painting.userData = { paintingId: data.id, frame: frame, isEmpty: true };
+            painting.userData.originalMaterial = painting.material;
+            scene.add(painting);
+
+            paintings.push({ painting, frame, data, media: null });
+            return painting;
+        }
+
+        // Setup all paintings uniformly
+        paintingData.forEach(data => {
+            createPainting(data);
+        });
+
+        // Add lighting for all paintings
+        paintings.forEach((p, index) => {
+            const lightColor = 0xffffff;
+            const intensity = 0.8; // Same intensity for all
+            const light = new THREE.SpotLight(lightColor, intensity, 15, Math.PI / 4, 0.1, 2);
+
+            // Position light based on wall
+            const pos = p.data.position;
+            if (pos[2] < 0) { // Back wall
+                light.position.set(pos[0], pos[1] + 3, pos[2] + 5);
+            } else if (pos[2] > 0) { // Front wall
+                light.position.set(pos[0], pos[1] + 3, pos[2] - 5);
+            } else if (pos[0] < 0) { // Left wall
+                light.position.set(pos[0] + 5, pos[1] + 3, pos[2]);
+            } else { // Right wall
+                light.position.set(pos[0] - 5, pos[1] + 3, pos[2]);
+            }
+
+            light.target = p.painting;
+            light.castShadow = true;
+            scene.add(light);
+            scene.add(light.target);
+        });
+
+        console.log(`Gallery setup complete - ${paintings.length} paintings created`);
+
+        // Hardcoded Gallery Content
+        console.log('Loading predefined gallery content...');
+
+        // Define content for each painting (you can easily modify these)
+        const galleryContent = {
+            'painting1': {
+                type: 'canvas',
+                title: 'Project 1',
+                color: '#FF6B6B',
+                description: 'Web Application'
+            },
+            'painting2': {
+                type: 'canvas',
+                title: 'Project 2',
+                color: '#4ECDC4',
+                description: 'Mobile App'
+            },
+            'painting3': {
+                type: 'canvas',
+                title: 'Project 3',
+                color: '#45B7D1',
+                description: 'Data Visualization'
+            },
+            'painting4': {
+                type: 'canvas',
+                title: 'Project 4',
+                color: '#96CEB4',
+                description: 'API Development'
+            },
+            'painting5': {
+                type: 'canvas',
+                title: 'Project 5',
+                color: '#FECA57',
+                description: 'Machine Learning'
+            },
+            'painting6': {
+                type: 'canvas',
+                title: 'Project 6',
+                color: '#FF9FF3',
+                description: 'Cloud Infrastructure'
+            },
+            'painting7': {
+                type: 'canvas',
+                title: 'Project 7',
+                color: '#54A0FF',
+                description: 'DevOps Pipeline'
+            },
+            'painting8': {
+                type: 'canvas',
+                title: 'Project 8',
+                color: '#FF6348',
+                description: 'Security & Auth'
+            },
+            'painting9': {
+                type: 'canvas',
+                title: 'Project 9',
+                color: '#1DD1A1',
+                description: 'AI Integration'
+            }
+        };
+
+        // Function to create canvas-based placeholder
+        function createCanvasPlaceholder(content) {
+            console.log(`Creating canvas placeholder for ${content.title} with color ${content.color}`);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Background - make it more distinctive
+            ctx.fillStyle = content.color;
+            ctx.fillRect(0, 0, 800, 600);
+
+            // Add border to make it more visible
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 10;
+            ctx.strokeRect(5, 5, 790, 590);
+
+            // Add some pattern - large circles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            for (let i = 0; i < 8; i++) {
+                ctx.beginPath();
+                ctx.arc(
+                    100 + (i % 4) * 150,
+                    150 + Math.floor(i / 4) * 200,
+                    50, 0, Math.PI * 2
+                );
+                ctx.fill();
+            }
+
+            // Title - make it much more visible
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 60px Arial';
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.strokeText(content.title, 400, 200);
+            ctx.fillText(content.title, 400, 200);
+
+            // Description
+            ctx.font = 'bold 40px Arial';
+            ctx.strokeText(content.description, 400, 280);
+            ctx.fillText(content.description, 400, 280);
+
+            // Large icon
+            ctx.font = '80px Arial';
+            ctx.strokeText('🚀', 400, 400);
+            ctx.fillText('🚀', 400, 400);
+
+            // Add "CANVAS" text to make it obvious this is canvas content
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = '#FFFF00';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.strokeText('CANVAS CONTENT', 400, 500);
+            ctx.fillText('CANVAS CONTENT', 400, 500);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 0.2,
+                metalness: 0.1
+            });
+
+            console.log(`Created canvas material for ${content.title}`, material);
+            return material;
+        }
+
+        // Function to load predefined content into paintings
+        function loadGalleryContent() {
+            console.log('Starting to load gallery content for', paintings.length, 'paintings');
+
+            paintings.forEach((paintingObj, index) => {
+                const content = galleryContent[paintingObj.data.id];
+                if (!content) {
+                    console.log(`No content found for ${paintingObj.data.id}`);
+                    return; // Skip undefined content
+                }
+
+                console.log(`Loading ${content.title} into ${paintingObj.data.id} (index ${index})`);
+                console.log(`Painting position:`, paintingObj.data.position);
+                console.log(`Painting rotation:`, paintingObj.data.rotation);
+
+                if (content.type === 'canvas') {
+                    // Create canvas-based material
+                    const newMaterial = createCanvasPlaceholder(content);
+                    paintingObj.painting.material = newMaterial;
+                    paintingObj.painting.material.needsUpdate = true;
+                    console.log(`Applied canvas material to ${paintingObj.data.id}`, newMaterial);
+
+                } else if (content.type === 'video') {
+                    // Create video element
+                    const video = document.createElement('video');
+                    video.src = content.src;
+                    video.loop = true;
+                    video.muted = true;
+                    video.crossOrigin = 'anonymous';
+                    video.playsInline = true;
+                    video.autoplay = false;
+
+                    const videoTexture = new THREE.VideoTexture(video);
+                    videoTexture.minFilter = THREE.LinearFilter;
+                    videoTexture.magFilter = THREE.LinearFilter;
+                    videoTexture.format = THREE.RGBFormat;
+
+                    video.addEventListener('loadeddata', () => {
+                        console.log(`Video ${content.title} loaded`);
+                        paintingObj.painting.material = new THREE.MeshStandardMaterial({
+                            map: videoTexture,
+                            roughness: 0.1,
+                            metalness: 0.1
+                        });
+                    });
+
+                    video.addEventListener('canplay', () => {
+                        video.play().catch(e => console.log('Video autoplay failed:', e));
+                    });
+
+                    video.load();
+                    paintingObj.media = video;
+
+                } else {
+                    // Create image texture
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        console.log(`Image ${content.title} loaded`);
+                        const texture = new THREE.Texture(img);
+                        texture.needsUpdate = true;
+
+                        paintingObj.painting.material = new THREE.MeshStandardMaterial({
+                            map: texture,
+                            roughness: 0.2,
+                            metalness: 0.1
+                        });
+                    };
+                    img.onerror = () => {
+                        console.log(`Failed to load ${content.title}, using fallback`);
+                        // Keep the original "Portfolio Image" material as fallback
+                    };
+                    img.src = content.src;
+                    paintingObj.media = img;
+                }
+
+                // Brown frame for all content types
+                paintingObj.frame.material.color.setHex(0x8b4513);
+
+                // Update painting userData
+                paintingObj.data.isEmpty = false;
+                paintingObj.data.title = content.title;
+            });
+
+            console.log('Finished loading gallery content');
+        }
+
+        // Load all gallery content
+        loadGalleryContent();
+
+        console.log('Gallery content loaded successfully!');
+
+        // Plant decorations
+        const plantPot = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.25, 0.4, 8),
+            new THREE.MeshStandardMaterial({ color: 0x8b4513 })
+        );
+        plantPot.position.set(-10, 0.2, -10);
+        scene.add(plantPot);
+
+        const plantLeaves = new THREE.Mesh(
+            new THREE.SphereGeometry(0.6, 6, 5),
+            new THREE.MeshStandardMaterial({ color: 0x228b22 })
+        );
+        plantLeaves.position.set(-10, 0.8, -10);
+        scene.add(plantLeaves);
+
+        // Add more plants
+        const plantPot2 = plantPot.clone();
+        plantPot2.position.set(10, 0.2, -10);
+        scene.add(plantPot2);
+
+        const plantLeaves2 = plantLeaves.clone();
+        plantLeaves2.position.set(10, 0.8, -10);
+        scene.add(plantLeaves2);
+
+        // Character creation - Josh Chou
+        const characters = [];
+
+        function createCharacter(name, role, x, z, shirtColor, characterData) {
+            const group = new THREE.Group();
+
+            // Torso
+            const torsoGeometry = new THREE.CylinderGeometry(0.25, 0.3, 0.8, 8);
+            const torsoMaterial = new THREE.MeshStandardMaterial({ color: shirtColor });
+            const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+            torso.position.y = 0.6;
+            torso.castShadow = true;
+            group.add(torso);
+
+            // Arms
+            const armGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 6);
+            const armMaterial = new THREE.MeshStandardMaterial({ color: shirtColor });
+
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.3, 0.7, 0);
+            leftArm.rotation.z = Math.PI / 8;
+            group.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.3, 0.7, 0);
+            rightArm.rotation.z = -Math.PI / 8;
+            group.add(rightArm);
+
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6);
+            const legMaterial = new THREE.MeshStandardMaterial({ color: 0x2c3e50 });
+
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.15, 0.4, 0);
+            group.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.15, 0.4, 0);
+            group.add(rightLeg);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.25, 8, 6);
+            const headMaterial = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.25;
+            head.castShadow = true;
+            group.add(head);
+
+            // Hair
+            const hairGeometry = new THREE.SphereGeometry(0.27, 8, 6);
+            const hairMaterial = new THREE.MeshStandardMaterial({ color: characterData.hairColor });
+            const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+            hair.position.y = 1.35;
+            hair.scale.y = 0.6;
+            group.add(hair);
+
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.03, 4, 4);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.08, 1.25, 0.22);
+            group.add(leftEye);
+
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.08, 1.25, 0.22);
+            group.add(rightEye);
+
+            // Name label
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const context = canvas.getContext('2d');
+            context.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            context.fillRect(0, 0, 256, 64);
+            context.fillStyle = 'black';
+            context.font = 'bold 20px Arial';
+            context.textAlign = 'center';
+            context.fillText(name, 128, 25);
+            context.font = '16px Arial';
+            context.fillStyle = '#666';
+            context.fillText(role, 128, 45);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const labelMaterial = new THREE.SpriteMaterial({ map: texture });
+            const label = new THREE.Sprite(labelMaterial);
+            label.position.y = 1.8;
+            label.scale.set(2, 0.5, 1);
+            group.add(label);
+
+            group.position.set(x, 0, z);
+            group.userData = {
+                name,
+                role,
+                conversations: [],
+                initialPosition: new THREE.Vector3(x, 0, z),
+                targetPosition: new THREE.Vector3(x, 0, z),
+                moveTimer: 0,
+                isDancing: false,
+                tripChance: 0.001,
+                leftArm: leftArm,
+                rightArm: rightArm,
+                ...characterData
+            };
+
+            characters.push(group);
+            return group;
+        }
+
+        // Create Josh Chou character
+        const josh = createCharacter('Josh Chou', 'Software Engineer & Developer', 0, 0, 0x4169e1, {
+            hairColor: 0x3d3d3d,
+            personality: 'passionate and innovative',
+            quirk: 'always optimizing code and processes'
+        });
+
+        scene.add(josh);
+
+        // Get references to input elements early
+        const customQuestionInput = document.getElementById('custom-question-input');
+        const customQuestionSubmit = document.getElementById('custom-question-submit');
+
+        // Player controls
+        const player = {
+            position: new THREE.Vector3(0, 1.6, 5),
+            velocity: new THREE.Vector3(0, 0, 0),
+            speed: 0.1,
+            isJumping: false,
+            jumpVelocity: 0,
+            onGround: true,
+            groundHeight: 1.6
+        };
+
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            // Don't process game controls if typing in the custom question input
+            if (document.activeElement === customQuestionInput) {
+                // Only process ESC when typing
+                if (e.key === 'Escape') {
+                    dialogueBox.style.display = 'none';
+                    currentCharacter = null;
+                    if (document.pointerLockElement === renderer.domElement) {
+                        document.exitPointerLock();
+                    }
+                }
+                return;
+            }
+
+            keys[e.key.toLowerCase()] = true;
+            keys[e.key] = true; // Store original key for arrow keys
+
+            if (e.key.toLowerCase() === 'e' && nearbyCharacter && dialogueBox.style.display !== 'block') {
+                e.preventDefault();
+                openDialogue(nearbyCharacter);
+            }
+
+            if (e.key === ' ' && dialogueBox.style.display !== 'block') {
+                e.preventDefault();
+                // Only jump if on ground
+                if (player.onGround) {
+                    player.isJumping = true;
+                    player.jumpVelocity = 0.3; // Initial jump velocity
+                    player.onGround = false;
+                    createFloatingText('🦘', player.position);
+                }
+            }
+
+            // Prevent arrow keys from scrolling the page
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            // Don't process game controls if typing in the custom question input
+            if (document.activeElement === customQuestionInput) {
+                return;
+            }
+
+            keys[e.key.toLowerCase()] = false;
+            keys[e.key] = false; // Clear original key for arrow keys
+
+            // Note: Jump physics handles completion automatically, no need for keyup handler
+        });
+
+        // Character movement AI
+        function updateCharacterMovement(character, deltaTime) {
+            // Random events
+            if (Math.random() < character.userData.tripChance && !character.userData.isDancing) {
+                // Character trips!
+                character.rotation.x = Math.PI / 4;
+                character.position.y = 0.3;
+                createFloatingText('Oof!', character.position);
+
+                setTimeout(() => {
+                    character.rotation.x = 0;
+                    character.position.y = 0;
+                }, 1000);
+
+                character.userData.tripChance = 0;
+                setTimeout(() => {
+                    character.userData.tripChance = 0.001;
+                }, 5000);
+            }
+
+            // Don't move if this character is in conversation or dancing
+            if (character === currentCharacter || character.userData.isDancing) {
+                if (character === currentCharacter) {
+                    // Face the player
+                    const lookTarget = new THREE.Vector3(player.position.x, character.position.y, player.position.z);
+                    character.lookAt(lookTarget);
+                    character.rotation.x = 0;
+                    character.rotation.z = 0;
+                }
+                return;
+            }
+
+            // Random dance party
+            if (Math.random() < 0.001) {
+                character.userData.isDancing = true;
+                createFloatingText('🎵', character.position);
+                setTimeout(() => {
+                    character.userData.isDancing = false;
+                }, 3000);
+            }
+
+            character.userData.moveTimer -= deltaTime;
+
+            if (character.userData.moveTimer <= 0) {
+                // Set new random target
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 3 + Math.random() * 5;
+                character.userData.targetPosition = new THREE.Vector3(
+                    character.userData.initialPosition.x + Math.cos(angle) * distance,
+                    0,
+                    character.userData.initialPosition.z + Math.sin(angle) * distance
+                );
+
+                // Keep within bounds
+                character.userData.targetPosition.x = Math.max(-18, Math.min(18, character.userData.targetPosition.x));
+                character.userData.targetPosition.z = Math.max(-18, Math.min(18, character.userData.targetPosition.z));
+
+                character.userData.moveTimer = 5 + Math.random() * 5;
+            }
+
+            // Move towards target
+            const direction = new THREE.Vector3().subVectors(character.userData.targetPosition, character.position);
+            direction.y = 0;
+            const distance = direction.length();
+
+            if (distance > 0.1) {
+                direction.normalize();
+                character.position.add(direction.multiplyScalar(0.02));
+
+                // Face movement direction
+                character.lookAt(character.userData.targetPosition);
+                character.rotation.x = 0;
+                character.rotation.z = 0;
+
+                // Walking animation
+                if (!character.userData.isDancing) {
+                    character.position.y = Math.abs(Math.sin(Date.now() * 0.005)) * 0.05;
+                }
+            }
+        }
+
+        // Dialogue system with recruitment-focused questions
+        const dialogueBox = document.getElementById('dialogue-box');
+        const dialogueName = document.getElementById('dialogue-name');
+        const dialogueContent = document.getElementById('dialogue-content');
+        const dialogueOptions = document.getElementById('dialogue-options');
+        const interactionPrompt = document.getElementById('interaction-prompt');
+
+        let currentCharacter = null;
+        let nearbyCharacter = null;
+
+        function generateDialogueOptions(character) {
+            // Recruitment-focused questions
+            const recruitmentQuestions = [
+                // About background and experience
+                "Tell me about yourself",
+                "What's your work history?",
+                "Tell me about your skills and expertise",
+                "What are your strongest programming languages?",
+                "What's your educational background?",
+                "Walk me through your resume",
+
+                // About projects and achievements
+                "What's your most impressive project?",
+                "Tell me about a challenging problem you solved",
+                "What's a project you're proud of?",
+                "How do you approach learning new technologies?",
+                "What's your development process like?",
+                "Tell me about your coding philosophy",
+
+                // About career goals and motivation
+                "What are your career goals?",
+                "Why are you interested in this field?",
+                "What motivates you as a developer?",
+                "Where do you see yourself in 5 years?",
+                "What kind of role are you looking for?",
+                "What's your ideal work environment?",
+
+                // Technical and problem-solving
+                "How do you debug complex issues?",
+                "Tell me about your testing approach",
+                "How do you stay current with technology?",
+                "What's your preferred tech stack?",
+                "How do you handle technical debt?",
+                "Describe your code review process",
+
+                // Soft skills and teamwork
+                "How do you work in a team?",
+                "Tell me about a time you led a project",
+                "How do you handle disagreements with teammates?",
+                "What's your communication style?",
+                "How do you mentor junior developers?",
+                "Describe your leadership style",
+
+                // Fun and personality
+                "What do you do outside of work?",
+                "What's your favorite part of programming?",
+                "Tell me something interesting about yourself",
+                "What's your biggest achievement?",
+                "What challenges are you looking for?",
+                "What questions do you have for me?"
+            ];
+
+            // Select 4 random questions
+            const shuffled = recruitmentQuestions.sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 4);
+        }
+
+        function openDialogue(character) {
+            currentCharacter = character;
+            dialogueBox.style.display = 'block';
+            dialogueName.textContent = `${character.userData.name} - ${character.userData.role}`;
+
+            // Exit pointer lock when opening dialogue
+            if (document.pointerLockElement === renderer.domElement) {
+                document.exitPointerLock();
+            }
+
+            const greetings = [
+                `Hi! I'm ${character.userData.name}. Thanks for checking out my interactive portfolio! Feel free to ask me anything about my background and experience.`,
+                `Hello there! Welcome to my virtual office. I'm ${character.userData.name}, and I'd love to tell you about my journey as a developer.`,
+                `Great to meet you! I'm ${character.userData.name}. This is a fun way to learn about my skills and experience - ask me anything!`,
+                `Hey! I'm ${character.userData.name}. I built this interactive portfolio to showcase my work in a unique way. What would you like to know?`
+            ];
+
+            if (character.userData.conversations.length === 0) {
+                dialogueContent.innerHTML = `<p><strong>${character.userData.name}:</strong> ${greetings[Math.floor(Math.random() * greetings.length)]}</p>`;
+            } else {
+                // Show last exchange
+                const lastConv = character.userData.conversations[character.userData.conversations.length - 1];
+                dialogueContent.innerHTML = `<p><strong>You:</strong> ${lastConv.user}</p><p><strong>${character.userData.name}:</strong> ${lastConv.response}</p>`;
+            }
+
+            // Generate dialogue options
+            const options = generateDialogueOptions(character);
+            dialogueOptions.innerHTML = '';
+
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'dialogue-option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(option);
+                dialogueOptions.appendChild(optionDiv);
+            });
+
+            // Clear custom question input
+            document.getElementById('custom-question-input').value = '';
+
+            // Focus the input for easy typing
+            setTimeout(() => {
+                document.getElementById('custom-question-input').focus();
+            }, 100);
+        }
+
+        async function selectOption(option) {
+            if (!currentCharacter) return;
+
+            // Show selected option
+            dialogueContent.innerHTML += `<p><strong>You:</strong> ${option}</p>`;
+            dialogueContent.innerHTML += `<p><strong>${currentCharacter.userData.name}:</strong> <span class="loading"></span></p>`;
+
+            // Scroll to bottom of dialogue
+            dialogueContent.scrollTop = dialogueContent.scrollHeight;
+
+            // Get references to custom question elements
+            const customQuestionInput = document.getElementById('custom-question-input');
+            const customQuestionSubmit = document.getElementById('custom-question-submit');
+
+            // Disable options during loading
+            dialogueOptions.style.pointerEvents = 'none';
+            dialogueOptions.style.opacity = '0.5';
+            customQuestionInput.disabled = true;
+            customQuestionSubmit.disabled = true;
+
+            let responseText = "";
+
+            // Generate response based on the question
+            responseText = generateJoshResponse(option);
+
+            // Update conversation
+            currentCharacter.userData.conversations.push({
+                user: option,
+                response: responseText
+            });
+
+            // Update display
+            dialogueContent.innerHTML = dialogueContent.innerHTML.replace(
+                '<span class="loading"></span>',
+                responseText
+            );
+
+            // Scroll to bottom
+            dialogueContent.scrollTop = dialogueContent.scrollHeight;
+
+            // Random dialogue events
+            if (Math.random() < 0.2) {
+                createFloatingText('💡', currentCharacter.position);
+            }
+
+            // Generate new options
+            const newOptions = generateDialogueOptions(currentCharacter);
+            dialogueOptions.innerHTML = '';
+
+            newOptions.forEach(opt => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'dialogue-option';
+                optionDiv.textContent = opt;
+                optionDiv.onclick = () => selectOption(opt);
+                dialogueOptions.appendChild(optionDiv);
+            });
+
+            // Re-enable options
+            dialogueOptions.style.pointerEvents = 'auto';
+            dialogueOptions.style.opacity = '1';
+            customQuestionInput.disabled = false;
+            customQuestionSubmit.disabled = false;
+            customQuestionInput.focus();
+        }
+
+        // Josh's response generator
+        function generateJoshResponse(question) {
+            const responses = {
+                // About yourself / background
+                'tell me about yourself': [
+                    "I'm a passionate software engineer with experience in full-stack development, machine learning, and cloud technologies. I love solving complex problems and building innovative solutions that make a real impact.",
+                    "I'm a developer who's passionate about creating elegant, efficient solutions to challenging problems. My background spans web development, data science, and DevOps, with a focus on continuous learning and growth.",
+                    "I'm a software engineer who thrives on turning ideas into reality through code. I have experience across the full technology stack and enjoy working on projects that push the boundaries of what's possible."
+                ],
+
+                // Work history and experience
+                'work history': [
+                    "I've worked across various industries, from startups to enterprise companies, gaining experience in full-stack development, cloud architecture, and team leadership. Each role has taught me valuable lessons about building scalable, maintainable software.",
+                    "My career has taken me through different domains - web development, data engineering, and DevOps. I've led teams, architected systems, and always focused on delivering high-quality solutions that solve real business problems.",
+                    "I've had the opportunity to work on diverse projects, from building responsive web applications to designing distributed systems. My experience includes both technical leadership and hands-on development across multiple technology stacks."
+                ],
+
+                // Skills and expertise
+                'skills': [
+                    "I'm proficient in JavaScript/TypeScript, Python, and Java, with strong experience in React, Node.js, and cloud platforms like AWS and Azure. I also have expertise in database design, API development, and DevOps practices.",
+                    "My technical skills span front-end frameworks like React and Vue.js, backend technologies including Node.js and Django, and cloud infrastructure. I'm also experienced with Docker, Kubernetes, and CI/CD pipelines.",
+                    "I specialize in full-stack development with expertise in modern JavaScript frameworks, Python for data processing and APIs, and cloud-native architectures. I'm also skilled in database optimization and system design."
+                ],
+
+                // Programming languages
+                'programming languages': [
+                    "JavaScript/TypeScript is my go-to for web development, Python for data science and backend services, and I also work with Java for enterprise applications. I pick up new languages quickly based on project needs.",
+                    "I'm strongest in JavaScript and Python, but I've also worked extensively with Java, Go, and SQL. I believe in choosing the right tool for the job and I'm always eager to learn new languages.",
+                    "JavaScript and Python are my primary languages, but I'm comfortable working across the stack. I've used Java for enterprise development, SQL for database work, and I'm always exploring new technologies."
+                ],
+
+                // Projects
+                'project': [
+                    "I built a real-time data visualization platform that processes millions of events per day, using React, Node.js, and Apache Kafka. It reduced data analysis time by 80% and is now used by teams across the organization.",
+                    "One of my favorite projects was developing a machine learning pipeline that automated content moderation, reducing manual review time by 70%. It involved Python, TensorFlow, and AWS services for scalable deployment.",
+                    "I created a microservices architecture that improved system reliability by 99.9% uptime while reducing deployment time from hours to minutes. The project involved Docker, Kubernetes, and extensive automation."
+                ],
+
+                // Challenging problems
+                'challenging problem': [
+                    "I once had to optimize a database query that was taking 30+ seconds and bringing down our application. Through query optimization, indexing strategies, and caching, I reduced it to under 200ms.",
+                    "We had a memory leak in a Node.js application that was causing production crashes. I used profiling tools, analyzed heap dumps, and implemented proper memory management to solve the issue permanently.",
+                    "I solved a complex race condition in a distributed system by implementing proper locking mechanisms and redesigning the data flow. It required deep understanding of concurrency and system architecture."
+                ],
+
+                // Career goals
+                'career goals': [
+                    "I want to continue growing as a technical leader while staying hands-on with cutting-edge technologies. My goal is to build systems that scale and mentor other developers along the way.",
+                    "I'm focused on becoming a well-rounded engineering leader who can bridge the gap between technical excellence and business impact. I want to work on products that make a meaningful difference.",
+                    "My goal is to lead innovative projects that solve real-world problems while continuing to grow my technical expertise. I'm particularly interested in the intersection of AI and software engineering."
+                ],
+
+                // Motivation
+                'motivates': [
+                    "I'm motivated by the opportunity to solve complex problems and see the direct impact of my work. There's nothing quite like the feeling of building something from scratch and watching it help users accomplish their goals.",
+                    "What drives me is the constant learning and the collaborative nature of software development. Every project teaches me something new, and working with talented teams to build amazing products is incredibly fulfilling.",
+                    "I'm passionate about using technology to make people's lives better. Whether it's improving performance, adding new features, or solving technical challenges, I love the problem-solving aspect of development."
+                ],
+
+                // Technical approach
+                'debug': [
+                    "I approach debugging systematically - reproduce the issue, isolate variables, use logging and debugging tools, and test hypotheses. I also believe in writing comprehensive tests to prevent issues in the first place.",
+                    "My debugging process involves understanding the expected vs actual behavior, examining logs, using debugging tools, and thinking through the code flow. I also document solutions for the team's future reference.",
+                    "I start with gathering information about the issue, then use a combination of logging, debugging tools, and systematic elimination to identify the root cause. Prevention through good testing is equally important."
+                ],
+
+                // Default responses for general questions
+                'default': [
+                    "That's a great question! I love discussing technology and my experiences. Is there a particular area you'd like to dive deeper into?",
+                    "Thanks for asking! I'm passionate about software development and always enjoy sharing my experiences and learning from others.",
+                    "Interesting question! I believe in continuous learning and improvement, both in technical skills and in understanding how technology can solve real problems.",
+                    "I appreciate your curiosity! Feel free to ask me anything about my technical background, projects, or approach to software development."
+                ]
+            };
+
+            // Determine response based on question keywords
+            let responseKey = 'default';
+            const questionLower = question.toLowerCase();
+
+            if (questionLower.includes('yourself') || questionLower.includes('who are you')) responseKey = 'tell me about yourself';
+            else if (questionLower.includes('work history') || questionLower.includes('resume') || questionLower.includes('experience')) responseKey = 'work history';
+            else if (questionLower.includes('skills') || questionLower.includes('expertise') || questionLower.includes('technologies')) responseKey = 'skills';
+            else if (questionLower.includes('programming languages') || questionLower.includes('languages') || questionLower.includes('strongest')) responseKey = 'programming languages';
+            else if (questionLower.includes('project') || questionLower.includes('built') || questionLower.includes('impressive')) responseKey = 'project';
+            else if (questionLower.includes('challenging') || questionLower.includes('difficult') || questionLower.includes('problem')) responseKey = 'challenging problem';
+            else if (questionLower.includes('career goals') || questionLower.includes('future') || questionLower.includes('5 years')) responseKey = 'career goals';
+            else if (questionLower.includes('motivates') || questionLower.includes('motivation') || questionLower.includes('passionate')) responseKey = 'motivates';
+            else if (questionLower.includes('debug') || questionLower.includes('troubleshoot') || questionLower.includes('solve issues')) responseKey = 'debug';
+
+            const responseArray = responses[responseKey] || responses['default'];
+            return responseArray[Math.floor(Math.random() * responseArray.length)];
+        }
+
+        // Close dialogue with Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                dialogueBox.style.display = 'none';
+                currentCharacter = null;
+                // Also exit pointer lock if active
+                if (document.pointerLockElement === renderer.domElement) {
+                    document.exitPointerLock();
+                }
+            }
+        });
+
+        // Set up custom question handlers
+        customQuestionSubmit.addEventListener('click', () => {
+            const customQuestion = customQuestionInput.value.trim();
+            if (customQuestion && currentCharacter) {
+                selectOption(customQuestion);
+                customQuestionInput.value = '';
+            }
+        });
+
+        customQuestionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const customQuestion = customQuestionInput.value.trim();
+                if (customQuestion && currentCharacter) {
+                    selectOption(customQuestion);
+                    customQuestionInput.value = '';
+                }
+            }
+        });
+
+        // Animation loop
+        let lastTime = 0;
+        let animationStarted = false;
+
+        function animate(currentTime) {
+            requestAnimationFrame(animate);
+
+            if (!animationStarted) {
+                console.log('Animation loop started');
+                animationStarted = true;
+            }
+
+            const deltaTime = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            // Update player movement (only if dialogue is not open)
+            player.velocity.set(0, 0, 0);
+
+            if (dialogueBox.style.display !== 'block') {
+                if (keys['w']) player.velocity.z = player.speed;
+                if (keys['s']) player.velocity.z = -player.speed;
+                if (keys['a']) player.velocity.x = -player.speed;
+                if (keys['d']) player.velocity.x = player.speed;
+            }
+
+            // Arrow key camera controls (left/right only, disabled during dialogue)
+            const lookSpeed = 0.05;
+            if (dialogueBox.style.display !== 'block') {
+                if (keys['ArrowLeft']) {
+                    mouseX += lookSpeed;
+                }
+                if (keys['ArrowRight']) {
+                    mouseX -= lookSpeed;
+                }
+            }
+
+            // Update camera rotation based on mouse/arrow inputs (horizontal only, disabled during dialogue)
+            if (dialogueBox.style.display !== 'block') {
+                camera.rotation.y = mouseX;
+                camera.rotation.x = 0;
+            }
+
+            // Apply movement in camera direction
+            const forward = new THREE.Vector3(0, 0, -1);
+            forward.applyQuaternion(camera.quaternion);
+            forward.y = 0;
+            forward.normalize();
+
+            const right = new THREE.Vector3(1, 0, 0);
+            right.applyQuaternion(camera.quaternion);
+            right.y = 0;
+            right.normalize();
+
+            player.position.add(forward.multiplyScalar(player.velocity.z));
+            player.position.add(right.multiplyScalar(player.velocity.x));
+
+            // Keep player in bounds
+            player.position.x = Math.max(-18, Math.min(18, player.position.x));
+            player.position.z = Math.max(-18, Math.min(18, player.position.z));
+
+            // Apply jump physics
+            if (player.isJumping) {
+                player.jumpVelocity -= 0.01; // Gravity
+                player.position.y += player.jumpVelocity;
+
+                if (player.jumpVelocity < 0 && player.position.y <= player.groundHeight) {
+                    player.position.y = player.groundHeight;
+                    player.jumpVelocity = 0;
+                    player.isJumping = false;
+                    player.onGround = true;
+                }
+            }
+
+            // Update camera position to follow player
+            if (dialogueBox.style.display !== 'block') {
+                camera.position.copy(player.position);
+                camera.rotation.y = mouseX;
+                camera.rotation.x = 0;
+                camera.rotation.z = 0;
+            }
+
+            // Update character movement
+            characters.forEach(character => {
+                updateCharacterMovement(character, deltaTime);
+
+                // Dancing animation
+                if (character.userData.isDancing) {
+                    character.rotation.y += 0.1;
+                    character.position.y = Math.abs(Math.sin(Date.now() * 0.01)) * 0.3;
+
+                    // Arm waving
+                    character.userData.leftArm.rotation.z = Math.sin(Date.now() * 0.01) * 0.5 + Math.PI / 8;
+                    character.userData.rightArm.rotation.z = -Math.sin(Date.now() * 0.01) * 0.5 - Math.PI / 8;
+                }
+            });
+
+            // Check for nearby characters
+            nearbyCharacter = null;
+            let minDistance = Infinity;
+
+            characters.forEach(character => {
+                const distance = player.position.distanceTo(character.position);
+                if (distance < 3 && distance < minDistance) {
+                    minDistance = distance;
+                    nearbyCharacter = character;
+                }
+            });
+
+            // Show/hide interaction prompt (only when dialogue is not open)
+            if (nearbyCharacter && !currentCharacter) {
+                interactionPrompt.style.display = 'block';
+                interactionPrompt.textContent = `Press E to talk to ${nearbyCharacter.userData.name}`;
+            } else {
+                interactionPrompt.style.display = 'none';
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Mouse look (horizontal only)
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            if (document.pointerLockElement === renderer.domElement && dialogueBox.style.display !== 'block') {
+                mouseX += e.movementX * 0.002;
+            }
+        });
+
+        renderer.domElement.addEventListener('click', () => {
+            if (!dialogueBox.style.display || dialogueBox.style.display === 'none') {
+                renderer.domElement.requestPointerLock();
+            }
+        });
+
+        console.log('Starting animation...');
+        animate(0);
+    </script>
+</body>
+</html>
