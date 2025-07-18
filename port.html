@@ -188,23 +188,27 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(65, 105, 225, 0.9);
-            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            color: #00d4ff;
             padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             z-index: 1000;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         #contact-tab:hover {
-            background: rgba(65, 105, 225, 1);
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            color: #00ffff;
         }
 
         #contact-modal {
@@ -302,45 +306,48 @@
             color: white;
             font-size: 20px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .social-icon:hover {
             transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .social-icon.github {
-            background: rgba(36, 41, 46, 0.9);
+            background: rgba(36, 41, 46, 0.6);
         }
 
         .social-icon.github:hover {
-            background: rgba(36, 41, 46, 1);
+            background: rgba(36, 41, 46, 0.8);
         }
 
         .social-icon.linkedin {
-            background: rgba(0, 119, 181, 0.9);
+            background: rgba(0, 119, 181, 0.6);
         }
 
         .social-icon.linkedin:hover {
-            background: rgba(0, 119, 181, 1);
+            background: rgba(0, 119, 181, 0.8);
         }
 
         .social-icon.twitter {
-            background: rgba(29, 161, 242, 0.9);
+            background: rgba(29, 161, 242, 0.6);
         }
 
         .social-icon.twitter:hover {
-            background: rgba(29, 161, 242, 1);
+            background: rgba(29, 161, 242, 0.8);
         }
 
         .social-icon.email {
-            background: rgba(234, 67, 53, 0.9);
+            background: rgba(234, 67, 53, 0.6);
         }
 
         .social-icon.email:hover {
-            background: rgba(234, 67, 53, 1);
+            background: rgba(234, 67, 53, 0.8);
         }
     </style>
 </head>
@@ -467,7 +474,7 @@
         scene.add(directionalLight);
 
         // Floor with pattern
-        const floorGeometry = new THREE.PlaneGeometry(40, 40);
+        const floorGeometry = new THREE.PlaneGeometry(30, 30);
         const floorMaterial = new THREE.MeshStandardMaterial({
             color: 0xdcdcdc,
             roughness: 0.7,
@@ -483,8 +490,8 @@
         const tileMaterial1 = new THREE.MeshStandardMaterial({ color: 0xe8e8e8 });
         const tileMaterial2 = new THREE.MeshStandardMaterial({ color: 0xf0f0f0 });
 
-        for (let x = -20; x < 20; x += 2) {
-            for (let z = -20; z < 20; z += 2) {
+        for (let x = -15; x < 15; x += 2) {
+            for (let z = -15; z < 15; z += 2) {
                 const tile = new THREE.Mesh(tileGeometry, ((x + z) / 2) % 2 === 0 ? tileMaterial1 : tileMaterial2);
                 tile.position.set(x + 1, 0.01, z + 1);
                 tile.rotation.x = -Math.PI / 2;
@@ -509,50 +516,54 @@
 
         // Back wall with windows
         const backWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(40, 10),
+            new THREE.PlaneGeometry(30, 10),
             wallMaterial
         );
-        backWall.position.set(0, 5, -20);
+        backWall.position.set(0, 5, -15);
         backWall.receiveShadow = true;
+        backWall.castShadow = false;
         scene.add(backWall);
 
         // Add windows to back wall
-        for (let x = -15; x <= 15; x += 10) {
+        for (let x = -10; x <= 10; x += 8) {
             const window = new THREE.Mesh(
-                new THREE.PlaneGeometry(4, 3),
+                new THREE.PlaneGeometry(3, 2.5),
                 windowMaterial
             );
-            window.position.set(x, 5, -19.9);
+            window.position.set(x, 5, -14.9);
             scene.add(window);
         }
 
         // Side walls
         const leftWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(40, 10),
+            new THREE.PlaneGeometry(30, 10),
             wallMaterial
         );
-        leftWall.position.set(-20, 5, 0);
+        leftWall.position.set(-15, 5, 0);
         leftWall.rotation.y = Math.PI / 2;
         leftWall.receiveShadow = true;
+        leftWall.castShadow = false;
         scene.add(leftWall);
 
         const rightWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(40, 10),
+            new THREE.PlaneGeometry(30, 10),
             wallMaterial
         );
-        rightWall.position.set(20, 5, 0);
+        rightWall.position.set(15, 5, 0);
         rightWall.rotation.y = -Math.PI / 2;
         rightWall.receiveShadow = true;
+        rightWall.castShadow = false;
         scene.add(rightWall);
 
         // Front wall
         const frontWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(40, 10),
+            new THREE.PlaneGeometry(30, 10),
             wallMaterial
         );
-        frontWall.position.set(0, 5, 20);
+        frontWall.position.set(0, 5, 15);
         frontWall.rotation.y = Math.PI;
         frontWall.receiveShadow = true;
+        frontWall.castShadow = false;
         scene.add(frontWall);
 
         // Office furniture
@@ -1344,8 +1355,8 @@
                 );
 
                 // Keep within bounds
-                character.userData.targetPosition.x = Math.max(-18, Math.min(18, character.userData.targetPosition.x));
-                character.userData.targetPosition.z = Math.max(-18, Math.min(18, character.userData.targetPosition.z));
+                character.userData.targetPosition.x = Math.max(-13, Math.min(13, character.userData.targetPosition.x));
+                character.userData.targetPosition.z = Math.max(-13, Math.min(13, character.userData.targetPosition.z));
 
                 character.userData.moveTimer = 5 + Math.random() * 5;
             }
@@ -1800,8 +1811,8 @@
             player.position.copy(newPosition);
 
             // Keep player in bounds
-            player.position.x = Math.max(-18, Math.min(18, player.position.x));
-            player.position.z = Math.max(-18, Math.min(18, player.position.z));
+            player.position.x = Math.max(-13, Math.min(13, player.position.x));
+            player.position.z = Math.max(-13, Math.min(13, player.position.z));
 
             // Apply jump physics
             if (player.isJumping) {
