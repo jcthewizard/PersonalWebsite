@@ -502,7 +502,7 @@
 
         // Walls with windows
         const wallMaterial = new THREE.MeshStandardMaterial({
-            color: 0xf8f8f8,
+            color: 0xf8f8f8,  // Much lighter gray color
             roughness: 0.9
         });
 
@@ -565,6 +565,23 @@
         frontWall.receiveShadow = true;
         frontWall.castShadow = false;
         scene.add(frontWall);
+
+        // Ceiling
+        const ceilingMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.8,
+            metalness: 0.1
+        });
+
+        const ceiling = new THREE.Mesh(
+            new THREE.PlaneGeometry(30, 30),
+            ceilingMaterial
+        );
+        ceiling.position.set(0, 10, 0);
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.receiveShadow = true;
+        ceiling.castShadow = false;
+        scene.add(ceiling);
 
         // Office furniture
         const woodMaterial = new THREE.MeshStandardMaterial({
@@ -720,21 +737,21 @@
         const paintings = [];
         const paintingData = [
             // Back wall paintings
-            { id: 'painting1', name: 'Art Piece 1', position: [8, 4, -19.7], size: [4, 3], media: null },
-            { id: 'painting2', name: 'Art Piece 2', position: [-8, 4, -19.7], size: [3, 2.5], media: null },
-            { id: 'painting3', name: 'Art Piece 3', position: [0, 6, -19.7], size: [2.5, 2], media: null },
+            { id: 'painting1', name: 'Art Piece 1', position: [6, 4, -14.7], size: [3, 2.5], media: null },
+            { id: 'painting2', name: 'Art Piece 2', position: [-6, 4, -14.7], size: [3, 2.5], media: null },
+            { id: 'painting3', name: 'Art Piece 3', position: [0, 6, -14.7], size: [2.5, 2], media: null },
 
             // Left wall paintings
-            { id: 'painting4', name: 'Art Piece 4', position: [-19.7, 4, -8], size: [3, 2.5], media: null, rotation: [0, Math.PI/2, 0] },
-            { id: 'painting5', name: 'Art Piece 5', position: [-19.7, 4, 5], size: [2.5, 2], media: null, rotation: [0, Math.PI/2, 0] },
+            { id: 'painting4', name: 'Art Piece 4', position: [-14.7, 4, -6], size: [3, 2.5], media: null, rotation: [0, Math.PI/2, 0] },
+            { id: 'painting5', name: 'Art Piece 5', position: [-14.7, 4, 6], size: [2.5, 2], media: null, rotation: [0, Math.PI/2, 0] },
 
             // Right wall paintings
-            { id: 'painting6', name: 'Art Piece 6', position: [19.7, 4, -5], size: [3, 2.5], media: null, rotation: [0, -Math.PI/2, 0] },
-            { id: 'painting7', name: 'Art Piece 7', position: [19.7, 4, 8], size: [2.5, 2], media: null, rotation: [0, -Math.PI/2, 0] },
+            { id: 'painting6', name: 'Art Piece 6', position: [14.7, 4, -6], size: [3, 2.5], media: null, rotation: [0, -Math.PI/2, 0] },
+            { id: 'painting7', name: 'Art Piece 7', position: [14.7, 4, 6], size: [2.5, 2], media: null, rotation: [0, -Math.PI/2, 0] },
 
             // Front wall paintings
-            { id: 'painting8', name: 'Art Piece 8', position: [-6, 4, 19.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
-            { id: 'painting9', name: 'Art Piece 9', position: [6, 4, 19.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+            { id: 'painting8', name: 'Art Piece 8', position: [-6, 4, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+            { id: 'painting9', name: 'Art Piece 9', position: [6, 4, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
         ];
 
         // Create default fallback material for empty paintings
@@ -771,16 +788,17 @@
         // Create uniform paintings
         function createPainting(data) {
             // Create frame (all frames are identical brown wood)
-            const frameGeometry = new THREE.BoxGeometry(data.size[0] + 0.2, data.size[1] + 0.2, 0.15);
+            const frameGeometry = new THREE.BoxGeometry(data.size[0] + 0.3, data.size[1] + 0.3, 0.25);
             const frameMaterial = new THREE.MeshStandardMaterial({
                 color: 0x8b4513, // Brown wood color for all frames
                 roughness: 0.6,
                 metalness: 0.1
             });
             const frame = new THREE.Mesh(frameGeometry, frameMaterial);
-            frame.position.set(...data.position.map((p, i) => i === 2 ? p - 0.1 : p));
+            frame.position.set(...data.position.map((p, i) => i === 2 ? p - 0.15 : p));
             if (data.rotation) frame.rotation.set(...data.rotation);
             frame.castShadow = true;
+            frame.receiveShadow = true;
             scene.add(frame);
 
             // Create painting with empty material
