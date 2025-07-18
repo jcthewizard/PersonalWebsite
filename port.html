@@ -160,6 +160,36 @@
             transform: none;
         }
 
+        /* Painting Tooltip Styles */
+        .painting-tooltip {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            max-width: 300px;
+            display: none;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .painting-tooltip h4 {
+            display: none;
+        }
+
+        .painting-tooltip p {
+            margin: 0;
+            color: #333;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -417,6 +447,11 @@
             <input type="text" id="custom-question-input" placeholder="Ask me about my experience, skills, projects, or anything else!" maxlength="200">
             <button id="custom-question-submit">Ask Question</button>
         </div>
+    </div>
+
+    <div id="painting-tooltip" class="painting-tooltip">
+        <h4 id="tooltip-title">Painting Title</h4>
+        <p id="tooltip-description">Placeholder description for this painting.</p>
     </div>
 
     <div id="interaction-prompt"></div>
@@ -1806,6 +1841,75 @@
         // Animation loop
         let lastTime = 0;
         let animationStarted = false;
+        let nearbyPainting = null;
+        let tooltipTimeout = null;
+
+        // Painting tooltip data
+        const paintingTooltips = {
+            'painting1': {
+                // title: 'Professional Photo 1',
+                description: 'Glacier National Park'
+            },
+            'painting2': {
+                // title: 'Professional Photo 2',
+                description: 'Yosemite National Park'
+            },
+            'painting3': {
+                // title: 'Professional Photo 3',
+                description: 'Me!'
+            },
+            'painting4': {
+                title: 'Project 4',
+                description: 'Placeholder description for Project 4. This is a placeholder that you can edit with the correct description.'
+            },
+            'painting5': {
+                title: 'Project 5',
+                description: 'Placeholder description for Project 5. This is a placeholder that you can edit with the correct description.'
+            },
+            'painting6': {
+                title: 'Project 6',
+                description: 'Placeholder description for Project 6. This is a placeholder that you can edit with the correct description.'
+            },
+            'painting7': {
+                title: 'Project 7',
+                description: 'Placeholder description for Project 7. This is a placeholder that you can edit with the correct description.'
+            },
+            'painting8': {
+                title: 'Project 8',
+                description: 'Placeholder description for Project 8. This is a placeholder that you can edit with the correct description.'
+            },
+            'painting9': {
+                title: 'Project 9',
+                description: 'Placeholder description for Project 9. This is a placeholder that you can edit with the correct description.'
+            }
+        };
+
+        // Function to show painting tooltip
+        function showPaintingTooltip(paintingId, worldPosition) {
+            const tooltip = document.getElementById('painting-tooltip');
+            const title = document.getElementById('tooltip-title');
+            const description = document.getElementById('tooltip-description');
+
+            if (paintingTooltips[paintingId]) {
+                title.textContent = paintingTooltips[paintingId].title;
+                description.textContent = paintingTooltips[paintingId].description;
+
+                // Position tooltip near the top of the screen
+                tooltip.style.left = '50%';
+                tooltip.style.top = '20px';
+                tooltip.style.transform = 'translateX(-50%)';
+                tooltip.style.display = 'block';
+
+                nearbyPainting = paintingId;
+            }
+        }
+
+        // Function to hide painting tooltip
+        function hidePaintingTooltip() {
+            const tooltip = document.getElementById('painting-tooltip');
+            tooltip.style.display = 'none';
+            nearbyPainting = null;
+        }
 
         function animate(currentTime) {
             requestAnimationFrame(animate);
@@ -1938,6 +2042,25 @@
                 interactionPrompt.textContent = `Press E to Talk`;
             } else {
                 interactionPrompt.style.display = 'none';
+            }
+
+            // Check for nearby paintings
+            let closestPainting = null;
+            let closestPaintingDistance = Infinity;
+
+            paintings.forEach(painting => {
+                const distance = player.position.distanceTo(painting.painting.position);
+                if (distance < 4 && distance < closestPaintingDistance) {
+                    closestPaintingDistance = distance;
+                    closestPainting = painting;
+                }
+            });
+
+            // Show/hide painting tooltip
+            if (closestPainting && closestPaintingDistance < 4) {
+                showPaintingTooltip(closestPainting.data.id, closestPainting.painting.position);
+            } else {
+                hidePaintingTooltip();
             }
 
             renderer.render(scene, camera);
