@@ -430,8 +430,8 @@
             <button id="close-contact">&times;</button>
             <h2>Get In Touch</h2>
             <p>I'm always interested in new opportunities and collaborations. Feel free to reach out!</p>
-            <a href="mailto:josh@example.com" class="contact-button">📧 Send Email</a>
-            <a href="resume.pdf" class="contact-button" download>📄 Download Resume</a>
+            <a href="mailto:joshchouprofessional@outlook.com" class="contact-button">📧 Send Email</a>
+            <a href="JoshChouResume.pdf" class="contact-button" download>📄 Download Resume</a>
             <p style="margin-top: 20px; font-size: 14px; color: #999;">
                 Available for freelance work and full-time opportunities
             </p>
@@ -568,15 +568,15 @@
         backWall.castShadow = false;
         scene.add(backWall);
 
-        // Add windows to back wall
-        for (let x = -10; x <= 10; x += 8) {
-            const window = new THREE.Mesh(
-                new THREE.PlaneGeometry(3, 2.5),
-                windowMaterial
-            );
-            window.position.set(x, 5, -14.9);
-            scene.add(window);
-        }
+        // Add windows to back wall - REMOVED
+        // for (let x = -10; x <= 10; x += 8) {
+        //     const window = new THREE.Mesh(
+        //         new THREE.PlaneGeometry(3, 2.5),
+        //         windowMaterial
+        //     );
+        //     window.position.set(x, 5, -14.9);
+        //     scene.add(window);
+        // }
 
         // Side walls
         const leftWall = new THREE.Mesh(
@@ -781,21 +781,21 @@
         const paintings = [];
         const paintingData = [
             // Back wall paintings
-            { id: 'painting1', name: 'Art Piece 1', position: [6, 4, -14.7], size: [3, 2.5], media: null },
-            { id: 'painting2', name: 'Art Piece 2', position: [-6, 4, -14.7], size: [3, 2.5], media: null },
-            { id: 'painting3', name: 'Art Piece 3', position: [0, 6, -14.7], size: [2.5, 2], media: null },
+            { id: 'painting1', name: 'Art Piece 1', position: [6, 1.6, -14.7], size: [3, 2.5], media: null },
+            { id: 'painting2', name: 'Art Piece 2', position: [-6, 1.6, -14.7], size: [3, 2.5], media: null },
+            { id: 'painting3', name: 'Art Piece 3', position: [0, 1.8, -14.7], size: [2.5, 2], media: null },
 
             // Left wall paintings
-            { id: 'painting4', name: 'Art Piece 4', position: [-14.7, 4, -6], size: [3, 2.5], media: null, rotation: [0, Math.PI/2, 0] },
-            { id: 'painting5', name: 'Art Piece 5', position: [-14.7, 4, 6], size: [2.5, 2], media: null, rotation: [0, Math.PI/2, 0] },
+            { id: 'painting4', name: 'Art Piece 4', position: [-14.7, 1.6, -6], size: [3, 2.5], media: null, rotation: [0, Math.PI/2, 0] },
+            { id: 'painting5', name: 'Art Piece 5', position: [-14.7, 1.6, 6], size: [2.5, 2], media: null, rotation: [0, Math.PI/2, 0] },
 
             // Right wall paintings
-            { id: 'painting6', name: 'Art Piece 6', position: [14.7, 4, -6], size: [3, 2.5], media: null, rotation: [0, -Math.PI/2, 0] },
-            { id: 'painting7', name: 'Art Piece 7', position: [14.7, 4, 6], size: [2.5, 2], media: null, rotation: [0, -Math.PI/2, 0] },
+            { id: 'painting6', name: 'Art Piece 6', position: [14.7, 1.6, -6], size: [3, 2.5], media: null, rotation: [0, -Math.PI/2, 0] },
+            { id: 'painting7', name: 'Art Piece 7', position: [14.7, 1.6, 6], size: [2.5, 2], media: null, rotation: [0, -Math.PI/2, 0] },
 
             // Front wall paintings
-            { id: 'painting8', name: 'Art Piece 8', position: [-6, 4, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
-            { id: 'painting9', name: 'Art Piece 9', position: [6, 4, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+            { id: 'painting8', name: 'Art Piece 8', position: [-6, 1.6, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
+            { id: 'painting9', name: 'Art Piece 9', position: [6, 1.6, 14.7], size: [3, 2.5], media: null, rotation: [0, Math.PI, 0] },
         ];
 
         // Create default fallback material for empty paintings
@@ -871,22 +871,22 @@
         // Define content for each painting (you can easily modify these)
         const galleryContent = {
             'painting1': {
-                type: 'canvas',
-                title: 'Project 1',
-                color: '#FF6B6B',
-                description: 'Web Application'
+                type: 'image',
+                title: 'Professional Photo 1',
+                src: 'http://localhost:8000/DSCF6482.jpg',
+                description: 'Portfolio Image'
             },
             'painting2': {
-                type: 'canvas',
-                title: 'Project 2',
-                color: '#4ECDC4',
-                description: 'Mobile App'
+                type: 'image',
+                title: 'Professional Photo 2',
+                src: 'http://localhost:8000/DSCF5164.jpg',
+                description: 'Portfolio Image'
             },
             'painting3': {
-                type: 'canvas',
-                title: 'Project 3',
-                color: '#45B7D1',
-                description: 'Data Visualization'
+                type: 'image',
+                title: 'Professional Photo 3',
+                src: 'http://localhost:8000/1722728684041.jpeg',
+                description: 'Portfolio Image'
             },
             'painting4': {
                 type: 'canvas',
@@ -1053,8 +1053,11 @@
                     // Create image texture
                     const img = new Image();
                     img.crossOrigin = 'anonymous';
+
+                    console.log(`Attempting to load image: ${content.src}`);
+
                     img.onload = () => {
-                        console.log(`Image ${content.title} loaded`);
+                        console.log(`Image ${content.title} loaded successfully`);
                         const texture = new THREE.Texture(img);
                         texture.needsUpdate = true;
 
@@ -1063,11 +1066,16 @@
                             roughness: 0.2,
                             metalness: 0.1
                         });
+                        console.log(`Applied texture to ${paintingObj.data.id}`);
                     };
-                    img.onerror = () => {
-                        console.log(`Failed to load ${content.title}, using fallback`);
+
+                    img.onerror = (error) => {
+                        console.error(`Failed to load ${content.title} from ${content.src}:`, error);
+                        console.log(`Using fallback material for ${paintingObj.data.id}`);
                         // Keep the original "Portfolio Image" material as fallback
                     };
+
+                    // Set the source after setting up event handlers
                     img.src = content.src;
                     paintingObj.media = img;
                 }
