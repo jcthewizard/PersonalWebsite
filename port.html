@@ -53,84 +53,109 @@
 
         #dialogue-box {
             position: absolute;
-            bottom: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            padding: 20px;
-            border-radius: 15px;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.65);
+            color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
             max-width: 600px;
             width: 90%;
             display: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 1000;
         }
 
         #dialogue-box h3 {
-            margin: 0 0 10px 0;
-            color: #4169e1;
+            margin: 0 0 15px 0;
+            color: rgba(255, 255, 255, 1);
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         #dialogue-content {
-            margin: 10px 0;
+            margin: 15px 0;
             line-height: 1.6;
             max-height: 200px;
             overflow-y: auto;
+            color: rgba(255, 255, 255, 1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         .dialogue-option {
-            background: #f0f0f0;
-            border: 2px solid #4169e1;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
         }
 
         .dialogue-option:hover {
-            background: #4169e1;
-            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 1);
             transform: translateX(5px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
         }
 
         #custom-question-container {
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
+            padding-top: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         #custom-question-input {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #4169e1;
-            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
             box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.4);
+            color: rgba(255, 255, 255, 1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        #custom-question-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         #custom-question-submit {
-            background: #4169e1;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            color: rgba(255, 255, 255, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            margin-top: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
         }
 
         #custom-question-submit:hover {
-            background: #3557c7;
+            background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         #custom-question-submit:disabled {
-            background: #999;
+            background: rgba(0, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.5);
             cursor: not-allowed;
             transform: none;
         }
@@ -388,7 +413,7 @@
         <div id="dialogue-content">Content</div>
         <div id="dialogue-options"></div>
         <div id="custom-question-container">
-            <p style="margin: 5px 0; font-size: 14px; opacity: 0.8; text-align: center;" id="custom-question-divider">━━━ Or ask your own question ━━━</p>
+            <p style="margin: 15px 0; font-size: 14px; opacity: 0.8; text-align: center;" id="custom-question-divider">━━━ Or ask your own question ━━━</p>
             <input type="text" id="custom-question-input" placeholder="Ask me about my experience, skills, projects, or anything else!" maxlength="200">
             <button id="custom-question-submit">Ask Question</button>
         </div>
