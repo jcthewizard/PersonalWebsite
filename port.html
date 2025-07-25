@@ -222,6 +222,118 @@
             line-height: 1.4;
         }
 
+        /* Computer Terminal Popup Styles */
+        .computer-terminal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: 70%;
+            background: #1a1a1a;
+            border: 3px solid #333;
+            border-radius: 8px;
+            display: none;
+            z-index: 3000;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .terminal-header {
+            background: #333;
+            padding: 10px 15px;
+            border-bottom: 1px solid #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .terminal-close {
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .terminal-close:hover {
+            background: #ff6666;
+        }
+
+        .terminal-content {
+            padding: 20px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            color: #00ff00;
+            font-size: 14px;
+            line-height: 1.6;
+            background: #1a1a1a;
+        }
+
+        .terminal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-content::-webkit-scrollbar-track {
+            background: #333;
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        .project-item {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #222;
+        }
+
+        .project-title {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .project-tech {
+            color: #ffff00;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .project-description {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .project-link {
+            color: #ff00ff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .project-link:hover {
+            color: #ff66ff;
+        }
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -512,6 +624,62 @@
         Open - Andre Agassi<br>
         The Martian - Andy Weir<br>
         One Flew Over the Cuckoo's Nest - Ken Kesey</p>
+    </div>
+
+    <!-- Computer Terminal Popup -->
+    <div id="computer-terminal" class="computer-terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">josh@portfolio:~/projects$</div>
+            <button class="terminal-close" onclick="closeComputerTerminal()">×</button>
+        </div>
+        <div class="terminal-content">
+            <div style="color: #00ffff; margin-bottom: 20px;">> ls -la projects/</div>
+
+            <div class="project-item">
+                <div class="project-title">🚀 PersonalWebsite</div>
+                <div class="project-tech">Tech: Three.js, JavaScript, HTML5, CSS3</div>
+                <div class="project-description">Interactive 3D portfolio showcasing skills and projects in a virtual office environment. Features real-time character interactions, physics-based movement, and immersive 3D graphics.</div>
+                <div class="project-link">GitHub: github.com/joshchou/PersonalWebsite</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">🤖 AI ChatBot</div>
+                <div class="project-tech">Tech: Python, OpenAI API, Flask, React</div>
+                <div class="project-description">Intelligent conversational AI with natural language processing capabilities. Supports context-aware responses and integrates with multiple APIs for enhanced functionality.</div>
+                <div class="project-link">GitHub: github.com/joshchou/ai-chatbot</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">📊 DataViz Dashboard</div>
+                <div class="project-tech">Tech: D3.js, Node.js, MongoDB, Express</div>
+                <div class="project-description">Real-time data visualization platform with interactive charts and graphs. Features customizable dashboards, real-time updates, and responsive design.</div>
+                <div class="project-link">GitHub: github.com/joshchou/dataviz-dashboard</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">🎮 GameEngine2D</div>
+                <div class="project-tech">Tech: C++, OpenGL, SDL2</div>
+                <div class="project-description">Custom 2D game engine built from scratch with physics simulation, sprite rendering, and audio management. Includes level editor and scripting support.</div>
+                <div class="project-link">GitHub: github.com/joshchou/gameengine2d</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">🏠 SmartHome IoT</div>
+                <div class="project-tech">Tech: Arduino, Raspberry Pi, Python, MQTT</div>
+                <div class="project-description">IoT-based home automation system with sensor monitoring, remote control capabilities, and energy usage optimization. Mobile app for real-time control.</div>
+                <div class="project-link">GitHub: github.com/joshchou/smarthome-iot</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">💰 CryptoTracker</div>
+                <div class="project-tech">Tech: React Native, Redux, Cryptocurrency APIs</div>
+                <div class="project-description">Mobile application for tracking cryptocurrency portfolios with real-time price updates, news integration, and advanced analytics features.</div>
+                <div class="project-link">GitHub: github.com/joshchou/crypto-tracker</div>
+            </div>
+
+            <div style="color: #00ffff; margin-top: 30px;">> Total projects: 6</div>
+            <div style="color: #00ff00; margin-top: 10px;">> Press 'ESC' to close terminal</div>
+        </div>
     </div>
 
     <div id="interaction-prompt"></div>
@@ -854,6 +1022,10 @@
         // Add Josh's main desk
         const mainDesk = createMainDesk(0, -5);
         scene.add(mainDesk);
+
+        // Store desk reference globally for interaction
+        window.deskObject = mainDesk;
+        console.log('Desk object stored at position:', mainDesk.position);
 
         // Add whiteboard with "Josh Chou" written on it
         const whiteboardMaterial = new THREE.MeshStandardMaterial({
@@ -1704,6 +1876,17 @@
                 openDialogue(nearbyCharacter);
             }
 
+            // Open computer terminal with 'P' key when near desk
+            if (e.key.toLowerCase() === 'c' && window.deskObject && dialogueBox.style.display !== 'block') {
+                const deskDistance = player.position.distanceTo(window.deskObject.position);
+                console.log('C key pressed! Distance:', deskDistance, 'Desk exists:', !!window.deskObject);
+                if (deskDistance < 3) {
+                    e.preventDefault();
+                    console.log('Opening terminal...');
+                    openComputerTerminal();
+                }
+            }
+
             if (e.key === ' ' && dialogueBox.style.display !== 'block') {
                 e.preventDefault();
                 // Only jump if on ground
@@ -2085,6 +2268,13 @@
         // Close dialogue with Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                // Close computer terminal if open
+                const terminal = document.getElementById('computer-terminal');
+                if (terminal.style.display === 'block') {
+                    closeComputerTerminal();
+                    return;
+                }
+
                 dialogueBox.style.display = 'none';
                 currentCharacter = null;
                 // Also exit pointer lock if active
@@ -2408,19 +2598,19 @@
             if (window.tvObject) {
                 const tvDistance = player.position.distanceTo(window.tvObject.position);
                 const tvTooltip = document.getElementById('tv-tooltip');
-                
+
                 if (tvDistance < 4) {
                     // Show TV tooltip
                     tvTooltip.style.display = 'block';
-                    
+
                     // Position tooltip above TV (using the top of the TV)
                     const tvTopPos = window.tvObject.position.clone();
                     tvTopPos.y += 3; // Add TV height to get the top
                     tvTopPos.project(camera);
-                    
+
                     const x = (tvTopPos.x * 0.5 + 0.5) * window.innerWidth;
                     const y = (tvTopPos.y * -0.5 + 0.5) * window.innerHeight;
-                    
+
                     // Position tooltip above the TV with some margin
                     tvTooltip.style.left = Math.min(Math.max(x - 150, 20), window.innerWidth - 320) + 'px';
                     tvTooltip.style.top = Math.max(y - 150, 20) + 'px';
@@ -2433,24 +2623,42 @@
             if (window.bookshelfObject) {
                 const bookshelfDistance = player.position.distanceTo(window.bookshelfObject.position);
                 const bookshelfTooltip = document.getElementById('bookshelf-tooltip');
-                
+
                 if (bookshelfDistance < 4) {
                     // Show bookshelf tooltip
                     bookshelfTooltip.style.display = 'block';
-                    
+
                     // Position tooltip above bookshelf (using the top of the bookshelf)
                     const bookshelfTopPos = window.bookshelfObject.position.clone();
                     bookshelfTopPos.y += 2.5; // Add bookshelf height to get the top
                     bookshelfTopPos.project(camera);
-                    
+
                     const x = (bookshelfTopPos.x * 0.5 + 0.5) * window.innerWidth;
                     const y = (bookshelfTopPos.y * -0.5 + 0.5) * window.innerHeight;
-                    
+
                     // Position tooltip above the bookshelf with some margin
                     bookshelfTooltip.style.left = Math.min(Math.max(x - 150, 20), window.innerWidth - 320) + 'px';
                     bookshelfTooltip.style.top = Math.max(y - 150, 20) + 'px';
                 } else {
                     bookshelfTooltip.style.display = 'none';
+                }
+            }
+
+            // Check for computer/desk proximity
+            if (window.deskObject) {
+                const deskDistance = player.position.distanceTo(window.deskObject.position);
+
+                if (deskDistance < 3) {
+                    // Show computer interaction prompt
+                    if (nearbyCharacter === null && !currentCharacter) {
+                        interactionPrompt.style.display = 'block';
+                        interactionPrompt.textContent = `Press C to Access Computer (Projects)`;
+                    }
+                } else {
+                    // Only hide prompt if it's showing computer message
+                    if (interactionPrompt.textContent.includes('Computer')) {
+                        interactionPrompt.style.display = 'none';
+                    }
                 }
             }
 
@@ -2479,6 +2687,26 @@
                 renderer.domElement.requestPointerLock();
             }
         });
+
+        // Computer terminal functions
+        function openComputerTerminal() {
+            const terminal = document.getElementById('computer-terminal');
+            terminal.style.display = 'block';
+            // Disable game controls when terminal is open
+            document.body.style.pointerEvents = 'auto';
+        }
+
+        function closeComputerTerminal() {
+            const terminal = document.getElementById('computer-terminal');
+            terminal.style.display = 'none';
+            // Re-enable game controls
+            document.body.style.pointerEvents = 'none';
+            document.querySelector('canvas').style.pointerEvents = 'auto';
+        }
+
+        // Make functions globally available
+        window.openComputerTerminal = openComputerTerminal;
+        window.closeComputerTerminal = closeComputerTerminal;
 
         console.log('Starting animation...');
 
