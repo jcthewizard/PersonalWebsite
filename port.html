@@ -190,6 +190,38 @@
             font-weight: 500;
         }
 
+        /* Speaker Tooltip Styles */
+        .speaker-tooltip {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            max-width: 300px;
+            display: none;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .speaker-tooltip h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .speaker-tooltip p {
+            margin: 0;
+            color: #333;
+            line-height: 1.4;
+        }
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -436,6 +468,7 @@
         <p id="dance-instruction">Press SPACE to jump</p>
         <p id="close-instruction">Press ESC to close dialogs/release mouse</p>
         <p class="instruction" style="margin-top: 10px;" id="tip-instruction">💡 Ask me anything about my background!</p>
+        <p class="instruction" style="margin-top: 10px;" id="tip-instruction">💡 Explore the room to learn more about me!</p>
     </div>
 
     <div id="dialogue-box">
@@ -452,6 +485,33 @@
     <div id="painting-tooltip" class="painting-tooltip">
         <h4 id="tooltip-title">Painting Title</h4>
         <p id="tooltip-description">Placeholder description for this painting.</p>
+    </div>
+
+    <div id="speaker-tooltip" class="speaker-tooltip">
+        <h4>My current rotation (as of 7/24/25)</h4>
+        <p>Daisies - Justin Bieber<br>
+        Follows You - Michael Marcagi<br>
+        Strawberry Swing - Coldplay<br>
+        Little Bit More - Mk.gee<br>
+        Saving Up - Dom Dolla</p>
+    </div>
+
+    <div id="tv-tooltip" class="speaker-tooltip">
+        <h4>My Favorite Movies</h4>
+        <p>How to Train Your Dragon<br>
+        Real Steel<br>
+        Interstellar<br>
+        Tenet<br>
+        Dune Pt 2</p>
+    </div>
+
+    <div id="bookshelf-tooltip" class="speaker-tooltip">
+        <h4>My Favorite Books</h4>
+        <p>Red Rising - Pierce Brown<br>
+        Bewilderment - Richard Powers<br>
+        Open - Andre Agassi<br>
+        The Martian - Andy Weir<br>
+        One Flew Over the Cuckoo's Nest - Ken Kesey</p>
     </div>
 
     <div id="interaction-prompt"></div>
@@ -807,18 +867,21 @@
             whiteboardMaterial
         );
         whiteboard.position.set(0, 3, -19.8);
-        whiteboard.castShadow = true;
+        whiteboard.castShadow = false;
         scene.add(whiteboard);
-
         // Gallery System - Multiple Interactive Paintings Around the Walls
         console.log('Setting up interactive gallery system...');
 
         const paintings = [];
         const paintingData = [
-            // Back wall paintings
-            { id: 'painting1', name: 'Art Piece 1', position: [6, 1.6, -14.7], size: [3, 2.5], media: null },
-            { id: 'painting2', name: 'Art Piece 2', position: [-6, 1.6, -14.7], size: [3, 2.5], media: null },
-            { id: 'painting3', name: 'Art Piece 3', position: [0, 1.8, -14.7], size: [2.5, 2], media: null },
+            // Back wall paintings - gallery style with equal spacing and height
+            { id: 'painting1', name: 'Art Piece 1', position: [-9, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Far left
+            { id: 'painting2', name: 'Art Piece 2', position: [-6, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Left
+            { id: 'painting3', name: 'Art Piece 3', position: [-3, 1.7, -14.7], size: [2.4, 2.7], media: null }, // Left center (your photo - slightly wider)
+            { id: 'painting4', name: 'Art Piece 4', position: [0, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Center
+            { id: 'painting5', name: 'Art Piece 5', position: [3, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Right center
+            { id: 'painting6', name: 'Art Piece 6', position: [6, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Right
+            { id: 'painting7', name: 'Art Piece 7', position: [9, 1.7, -14.7], size: [2.1, 2.7], media: null }, // Far right
         ];
 
         // Create default fallback material for empty paintings
@@ -896,19 +959,43 @@
             'painting1': {
                 type: 'image',
                 title: 'Professional Photo 1',
-                src: 'http://localhost:8000/DSCF6482.jpg',
+                src: 'http://localhost:8000/IMG_0597.JPEG',
                 description: 'Portfolio Image'
             },
             'painting2': {
                 type: 'image',
                 title: 'Professional Photo 2',
-                src: 'http://localhost:8000/DSCF5164.jpg',
+                src: 'http://localhost:8000/IMG_9022.jpeg',
                 description: 'Portfolio Image'
             },
             'painting3': {
                 type: 'image',
                 title: 'Professional Photo 3',
+                src: 'http://localhost:8000/IMG_1698%202.jpeg',
+                description: 'Portfolio Image'
+            },
+            'painting4': {
+                type: 'image',
+                title: 'Professional Photo 4',
                 src: 'http://localhost:8000/1722728684041.jpeg',
+                description: 'Portfolio Image'
+            },
+            'painting5': {
+                type: 'image',
+                title: 'Professional Photo 5',
+                src: 'http://localhost:8000/IMG_4678.JPG',
+                description: 'Portfolio Image'
+            },
+            'painting6': {
+                type: 'image',
+                title: 'Professional Photo 6',
+                src: 'http://localhost:8000/IMG_7509.jpeg',
+                description: 'Portfolio Image'
+            },
+            'painting7': {
+                type: 'image',
+                title: 'Professional Photo 7',
+                src: 'http://localhost:8000/IMG_8477.jpeg',
                 description: 'Portfolio Image'
             }
         };
@@ -986,6 +1073,7 @@
         // Function to load predefined content into paintings
         function loadGalleryContent() {
             console.log('Starting to load gallery content for', paintings.length, 'paintings');
+            console.log('Available gallery content keys:', Object.keys(galleryContent));
 
             paintings.forEach((paintingObj, index) => {
                 const content = galleryContent[paintingObj.data.id];
@@ -1039,7 +1127,8 @@
                 } else {
                     // Create image texture
                     const img = new Image();
-                    img.crossOrigin = 'anonymous';
+                    // Remove crossOrigin for localhost to avoid CORS issues
+                    // img.crossOrigin = 'anonymous';
 
                     console.log(`Attempting to load image: ${content.src}`);
 
@@ -1059,6 +1148,9 @@
                     img.onerror = (error) => {
                         console.error(`Failed to load ${content.title} from ${content.src}:`, error);
                         console.log(`Using fallback material for ${paintingObj.data.id}`);
+                        console.log(`Image error details:`, error);
+                        console.log(`Attempted URL:`, content.src);
+                        console.log(`Painting ID:`, paintingObj.data.id);
                         // Keep the original "Portfolio Image" material as fallback
                     };
 
@@ -1106,6 +1198,286 @@
         const plantLeaves2 = plantLeaves.clone();
         plantLeaves2.position.set(10, 0.8, -10);
         scene.add(plantLeaves2);
+
+        // Additional Room Elements to Liven Things Up
+        console.log('Adding substantial room elements...');
+
+        // Large Bookshelf (left side of room) - more realistic
+        function createBookshelf(x, z) {
+            const bookshelfGroup = new THREE.Group();
+
+            // Main frame materials
+            const shelfMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.7 });
+            const darkWoodMaterial = new THREE.MeshStandardMaterial({ color: 0x654321, roughness: 0.8 });
+
+            // Vertical sides
+            const leftSide = new THREE.Mesh(new THREE.BoxGeometry(0.15, 6, 1), shelfMaterial);
+            leftSide.position.set(-1.9, 3, 0);
+            bookshelfGroup.add(leftSide);
+
+            const rightSide = new THREE.Mesh(new THREE.BoxGeometry(0.15, 6, 1), shelfMaterial);
+            rightSide.position.set(1.9, 3, 0);
+            bookshelfGroup.add(rightSide);
+
+            // Back panel
+            const backPanel = new THREE.Mesh(new THREE.BoxGeometry(3.8, 5.8, 0.1), darkWoodMaterial);
+            backPanel.position.set(0, 3, -0.45);
+            bookshelfGroup.add(backPanel);
+
+            // Top and bottom panels
+            const topPanel = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 1), shelfMaterial);
+            topPanel.position.set(0, 5.9, 0);
+            bookshelfGroup.add(topPanel);
+
+            const bottomPanel = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 1), shelfMaterial);
+            bottomPanel.position.set(0, 0.1, 0);
+            bookshelfGroup.add(bottomPanel);
+
+            // Shelves (4 internal shelves)
+            for (let i = 0; i < 4; i++) {
+                const shelf = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.1, 0.9), shelfMaterial);
+                shelf.position.y = (i + 1) * 1.4 + 0.2;
+                bookshelfGroup.add(shelf);
+
+                // Add books on each shelf - no randomness, consistent placement
+                let currentX = -1.6; // Start at left edge
+                const booksOnShelf = 7; // Fixed number of books per shelf
+
+                for (let j = 0; j < booksOnShelf; j++) {
+                    const bookColors = [0x8b0000, 0x006400, 0x4b0082, 0xff4500, 0x2f4f4f, 0x800080, 0x556b2f, 0x8b008b, 0x000080, 0x8b4513];
+                    const bookWidth = 0.12; // Fixed width for all books
+                    const bookHeight = 0.6 + Math.random() * 0.4; // Random height between 0.6 and 1.0
+                    const baseY = (i + 1) * 1.4 + 0.2 - 1.34; // Base level for all books on this shelf
+
+                    const book = new THREE.Mesh(
+                        new THREE.BoxGeometry(bookWidth, bookHeight, 0.05),
+                        new THREE.MeshStandardMaterial({ color: bookColors[j % bookColors.length] })
+                    );
+
+                    // Position books with same base but varying heights
+                    book.position.set(
+                        currentX + bookWidth/2,
+                        baseY + bookHeight/2, // Base stays same, height varies upward
+                        0.2 // Fixed depth within shelf
+                    );
+                    book.rotation.y = 0; // No rotation - all books perfectly aligned
+                    bookshelfGroup.add(book);
+
+                    currentX += bookWidth + 0.01; // Fixed gap between books
+
+                    if (currentX > 1.4) break; // Stop before shelf edge
+                }
+
+            }
+
+            bookshelfGroup.position.set(x, 0, z);
+            bookshelfGroup.rotation.y = Math.PI; // Turn it around to face inward
+            bookshelfGroup.castShadow = true;
+            bookshelfGroup.receiveShadow = true;
+            return bookshelfGroup;
+        }
+
+        const mainBookshelf = createBookshelf(-10, 13.5); // Pushed further back towards TV wall
+        scene.add(mainBookshelf);
+
+        // Store bookshelf reference globally for interaction
+        window.bookshelfObject = mainBookshelf;
+        console.log('Bookshelf object stored at position:', mainBookshelf.position);
+
+        // Large TV on front wall (opposite the gallery)
+        const tvGroup = new THREE.Group();
+
+        // TV frame/bezel
+        const tvFrame = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 3, 0.1),
+            new THREE.MeshStandardMaterial({ color: 0x222222 })
+        );
+        tvFrame.position.y = 2;
+        tvGroup.add(tvFrame);
+
+        // TV screen
+        const tvScreen = new THREE.Mesh(
+            new THREE.PlaneGeometry(4.6, 2.6),
+            new THREE.MeshStandardMaterial({
+                color: 0x000033,
+                emissive: 0x000011,
+                roughness: 0.1,
+                metalness: 0.1
+            })
+        );
+        tvScreen.position.set(0, 2, 0.06);
+        tvGroup.add(tvScreen);
+
+        // TV stand/mount
+        const tvStand = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 0.5, 0.2),
+            new THREE.MeshStandardMaterial({ color: 0x444444 })
+        );
+        tvStand.position.set(0, 0.5, -0.1);
+        tvGroup.add(tvStand);
+
+        tvGroup.position.set(0, 0, 14.2);
+        tvGroup.castShadow = true;
+        scene.add(tvGroup);
+
+        // Store TV reference globally for interaction
+        window.tvObject = tvGroup;
+        console.log('TV object stored at position:', tvGroup.position);
+
+        // Large Area Rug - moved closer to TV
+        const areaRug = new THREE.Mesh(
+            new THREE.PlaneGeometry(8, 6),
+            new THREE.MeshStandardMaterial({
+                color: 0x8b4513,
+                roughness: 0.8,
+                metalness: 0.1
+            })
+        );
+        areaRug.rotation.x = -Math.PI / 2;
+        areaRug.position.set(0, 0.02, 8);
+        areaRug.receiveShadow = true;
+        scene.add(areaRug);
+
+        // Coffee Table on the rug - moved closer to TV
+        const coffeeTable = new THREE.Group();
+
+        // Table top
+        const coffeeTableTop = new THREE.Mesh(
+            new THREE.BoxGeometry(2.5, 0.1, 1.2),
+            new THREE.MeshStandardMaterial({ color: 0x654321 })
+        );
+        coffeeTableTop.position.y = 0.4;
+        coffeeTable.add(coffeeTableTop);
+
+        // Table legs
+        const legPositions = [[-1, 0.2, -0.5], [1, 0.2, -0.5], [-1, 0.2, 0.5], [1, 0.2, 0.5]];
+        legPositions.forEach(pos => {
+            const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.4, 0.1),
+                new THREE.MeshStandardMaterial({ color: 0x654321 })
+            );
+            leg.position.set(...pos);
+            coffeeTable.add(leg);
+        });
+
+        // Items on coffee table
+        const magazine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 0.02, 0.4),
+            new THREE.MeshStandardMaterial({ color: 0xff0000 })
+        );
+        magazine.position.set(-0.5, 0.46, 0.2);
+        magazine.rotation.y = 0.3;
+        coffeeTable.add(magazine);
+
+        const tvRemote = new THREE.Mesh(
+            new THREE.BoxGeometry(0.15, 0.03, 0.05),
+            new THREE.MeshStandardMaterial({ color: 0x333333 })
+        );
+        tvRemote.position.set(0.4, 0.46, -0.2);
+        coffeeTable.add(tvRemote);
+
+        coffeeTable.position.set(0, 0, 9);
+        coffeeTable.castShadow = true;
+        coffeeTable.receiveShadow = true;
+        scene.add(coffeeTable);
+
+        // Comfortable Couch facing TV (behind coffee table)
+        const couch = new THREE.Group();
+
+        // Main couch base
+        const couchBase = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 0.2, 1.8),
+            new THREE.MeshStandardMaterial({ color: 0x2d4a7b })
+        );
+        couchBase.position.y = 0.6;
+        couch.add(couchBase);
+
+        // Couch back
+        const couchBack = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 1.2, 0.3),
+            new THREE.MeshStandardMaterial({ color: 0x2d4a7b })
+        );
+        couchBack.position.y = 1.3;
+        couchBack.position.z = -0.75;
+        couch.add(couchBack);
+
+        // Couch arms
+        const leftArm = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 1.2, 1.8),
+            new THREE.MeshStandardMaterial({ color: 0x2d4a7b })
+        );
+        leftArm.position.set(-1.85, 1.3, 0);
+        couch.add(leftArm);
+
+        const rightArm = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 1.2, 1.8),
+            new THREE.MeshStandardMaterial({ color: 0x2d4a7b })
+        );
+        rightArm.position.set(1.85, 1.3, 0);
+        couch.add(rightArm);
+
+        // Couch cushions (3 seat cushions)
+        for (let i = 0; i < 3; i++) {
+            const cushion = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.15, 1.5),
+                new THREE.MeshStandardMaterial({ color: 0x3a5a8b })
+            );
+            cushion.position.set(-1.3 + i * 1.3, 0.78, 0.1);
+            couch.add(cushion);
+        }
+
+        // Back cushions
+        for (let i = 0; i < 3; i++) {
+            const backCushion = new THREE.Mesh(
+                new THREE.BoxGeometry(1.1, 0.8, 0.2),
+                new THREE.MeshStandardMaterial({ color: 0x3a5a8b })
+            );
+            backCushion.position.set(-1.3 + i * 1.3, 1.2, -0.65);
+            couch.add(backCushion);
+        }
+
+        couch.position.set(0, -0.4, 3.5); // Moved back and down to ground level
+        couch.castShadow = true;
+        couch.receiveShadow = true;
+        scene.add(couch);
+
+        // Floor Standing Speaker (corner)
+        const speaker = new THREE.Group();
+
+        const speakerBox = new THREE.Mesh(
+            new THREE.BoxGeometry(0.6, 2.5, 0.8),
+            new THREE.MeshStandardMaterial({ color: 0x222222 })
+        );
+        speakerBox.position.y = 1.25;
+        speaker.add(speakerBox);
+
+        // Speaker drivers
+        const woofer = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.2, 0.2, 0.05, 16),
+            new THREE.MeshStandardMaterial({ color: 0x444444 })
+        );
+        woofer.position.set(0, 0.8, 0.41);
+        woofer.rotation.x = Math.PI / 2;
+        speaker.add(woofer);
+
+        const tweeter = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.08, 0.08, 0.05, 16),
+            new THREE.MeshStandardMaterial({ color: 0x444444 })
+        );
+        tweeter.position.set(0, 1.6, 0.41);
+        tweeter.rotation.x = Math.PI / 2;
+        speaker.add(tweeter);
+
+        speaker.position.set(12, 0, 12);
+        speaker.rotation.y = -Math.PI * 0.75; // Face inward toward center of room
+        speaker.castShadow = true;
+        scene.add(speaker);
+
+        // Store speaker reference globally for interaction
+        window.speakerObject = speaker;
+
+
+        console.log('Room elements added successfully!');
 
         // Character creation - Josh Chou
         const characters = [];
@@ -1299,7 +1671,7 @@
 
         // Player controls
         const player = {
-            position: new THREE.Vector3(0, 1.6, 5),
+            position: new THREE.Vector3(0, 1.6, 2),
             velocity: new THREE.Vector3(0, 0, 0),
             speed: 0.1,
             isJumping: false,
@@ -1800,15 +2172,31 @@
         const paintingTooltips = {
             'painting1': {
                 title: 'Professional Photo 1',
-                description: 'Glacier National Park'
+                description: 'My first time winning prize money from pickleball'
             },
             'painting2': {
                 title: 'Professional Photo 2',
-                description: 'Yosemite National Park'
+                description: 'Organizing my rock collection'
             },
             'painting3': {
                 title: 'Professional Photo 3',
+                description: 'Me and my brother at YC AI Startup school'
+            },
+            'painting4': {
+                title: 'Professional Photo 4',
                 description: 'Me!'
+            },
+            'painting5': {
+                title: 'Professional Photo 5',
+                description: 'Summiting a mountain'
+            },
+            'painting6': {
+                title: 'Professional Photo 6',
+                description: 'Playing my favorite game, mahjong'
+            },
+            'painting7': {
+                title: 'Professional Photo 7',
+                description: 'Playing my other favorite game, catan'
             }
         };
 
@@ -1989,6 +2377,81 @@
                 showPaintingTooltip(closestPainting.data.id, closestPainting.painting.position);
             } else {
                 hidePaintingTooltip();
+            }
+
+            // Check for speaker proximity
+            if (window.speakerObject) {
+                const speakerDistance = player.position.distanceTo(window.speakerObject.position);
+                const speakerTooltip = document.getElementById('speaker-tooltip');
+
+                if (speakerDistance < 4) {
+                    // Show speaker tooltip
+                    speakerTooltip.style.display = 'block';
+
+                    // Position tooltip near speaker
+                    const speakerTopPos = window.speakerObject.position.clone();
+                    speakerTopPos.y += 2.5; // Add speaker height to get the top
+                    speakerTopPos.project(camera);
+
+                    const x = (speakerTopPos.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (speakerTopPos.y * -0.5 + 0.5) * window.innerHeight;
+
+                    // Position tooltip above the speaker with some margin
+                    speakerTooltip.style.left = Math.min(Math.max(x - 150, 20), window.innerWidth - 320) + 'px';
+                    speakerTooltip.style.top = Math.max(y - 150, 20) + 'px';
+                } else {
+                    speakerTooltip.style.display = 'none';
+                }
+            }
+
+            // Check for TV proximity
+            if (window.tvObject) {
+                const tvDistance = player.position.distanceTo(window.tvObject.position);
+                const tvTooltip = document.getElementById('tv-tooltip');
+                
+                if (tvDistance < 4) {
+                    // Show TV tooltip
+                    tvTooltip.style.display = 'block';
+                    
+                    // Position tooltip above TV (using the top of the TV)
+                    const tvTopPos = window.tvObject.position.clone();
+                    tvTopPos.y += 3; // Add TV height to get the top
+                    tvTopPos.project(camera);
+                    
+                    const x = (tvTopPos.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (tvTopPos.y * -0.5 + 0.5) * window.innerHeight;
+                    
+                    // Position tooltip above the TV with some margin
+                    tvTooltip.style.left = Math.min(Math.max(x - 150, 20), window.innerWidth - 320) + 'px';
+                    tvTooltip.style.top = Math.max(y - 150, 20) + 'px';
+                } else {
+                    tvTooltip.style.display = 'none';
+                }
+            }
+
+            // Check for bookshelf proximity
+            if (window.bookshelfObject) {
+                const bookshelfDistance = player.position.distanceTo(window.bookshelfObject.position);
+                const bookshelfTooltip = document.getElementById('bookshelf-tooltip');
+                
+                if (bookshelfDistance < 4) {
+                    // Show bookshelf tooltip
+                    bookshelfTooltip.style.display = 'block';
+                    
+                    // Position tooltip above bookshelf (using the top of the bookshelf)
+                    const bookshelfTopPos = window.bookshelfObject.position.clone();
+                    bookshelfTopPos.y += 2.5; // Add bookshelf height to get the top
+                    bookshelfTopPos.project(camera);
+                    
+                    const x = (bookshelfTopPos.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (bookshelfTopPos.y * -0.5 + 0.5) * window.innerHeight;
+                    
+                    // Position tooltip above the bookshelf with some margin
+                    bookshelfTooltip.style.left = Math.min(Math.max(x - 150, 20), window.innerWidth - 320) + 'px';
+                    bookshelfTooltip.style.top = Math.max(y - 150, 20) + 'px';
+                } else {
+                    bookshelfTooltip.style.display = 'none';
+                }
             }
 
             renderer.render(scene, camera);
