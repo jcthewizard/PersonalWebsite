@@ -107,58 +107,7 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
         }
 
-        #custom-question-container {
-            margin-top: 15px;
-            padding-top: 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        #custom-question-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            font-size: 14px;
-            font-family: inherit;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.4);
-            color: rgba(255, 255, 255, 1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
-
-        #custom-question-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        #custom-question-submit {
-            background: rgba(0, 0, 0, 0.4);
-            color: rgba(255, 255, 255, 1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 24px;
-            margin-top: 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
-
-        #custom-question-submit:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        #custom-question-submit:disabled {
-            background: rgba(0, 0, 0, 0.2);
-            color: rgba(255, 255, 255, 0.5);
-            cursor: not-allowed;
-            transform: none;
-        }
+        /* Custom question styles removed - only predetermined questions now */
 
         /* Painting Tooltip Styles */
         .painting-tooltip {
@@ -587,11 +536,7 @@
         <h3 id="dialogue-name">Name</h3>
         <div id="dialogue-content">Content</div>
         <div id="dialogue-options"></div>
-        <div id="custom-question-container">
-            <p style="margin: 15px 0; font-size: 14px; opacity: 0.8; text-align: center;" id="custom-question-divider">━━━ Or ask your own question ━━━</p>
-            <input type="text" id="custom-question-input" placeholder="Ask me about my experience, skills, projects, or anything else!" maxlength="200">
-            <button id="custom-question-submit">Ask Question</button>
-        </div>
+        <!-- Custom questions removed - only predetermined recruiter questions available -->
     </div>
 
     <div id="painting-tooltip" class="painting-tooltip">
@@ -1651,6 +1596,572 @@
         // Store speaker reference globally for interaction
         window.speakerObject = speaker;
 
+        // Wall Decorations and Posters
+        function createWallPoster(text, width, height, fontSize, bgColor, textColor) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = bgColor || '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Border
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+            // Text
+            ctx.fillStyle = textColor || '#333';
+            ctx.font = `bold ${fontSize || 40}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Word wrap for long text
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > canvas.width - 40 && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+
+            const lineHeight = (fontSize || 40) * 1.2;
+            const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
+
+            lines.forEach((line, index) => {
+                ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.MeshStandardMaterial({ map: texture });
+            const geometry = new THREE.PlaneGeometry(width, height);
+            return new THREE.Mesh(geometry, material);
+        }
+
+        // Side wall motivational poster
+        const motivationalPoster = createWallPoster(
+            "Code is Poetry",
+            2.5, 1.5, 50, '#1a1a2e', '#16537e'
+        );
+        motivationalPoster.position.set(-14.9, 2.5, 5);
+        motivationalPoster.rotation.y = Math.PI / 2;
+        scene.add(motivationalPoster);
+
+        // AWS Certificate poster on same wall
+        const awsCertificate = createWallPoster(
+            "AWS SPARK FAIR WINNER\n2024",
+            2, 1.2, 35, '#ff9900', '#232f3e'
+        );
+        awsCertificate.position.set(-14.9, 2.5, 0);
+        awsCertificate.rotation.y = Math.PI / 2;
+        scene.add(awsCertificate);
+
+        // Hackathon winner poster
+        const hackathonPoster = createWallPoster(
+            "DUBHACKS 2023\nFIRST PLACE",
+            2, 1.2, 32, '#6441a4', '#ffffff'
+        );
+        hackathonPoster.position.set(-14.9, 2.5, -5);
+        hackathonPoster.rotation.y = Math.PI / 2;
+        scene.add(hackathonPoster);
+
+        // Tech meme on opposite wall
+        const techMeme = createWallPoster(
+            "There are only 10 types of people:\nThose who understand binary\nand those who don't",
+            3, 2, 28, '#2d2d2d', '#00ff00'
+        );
+        techMeme.position.set(14.9, 2.5, 2);
+        techMeme.rotation.y = -Math.PI / 2;
+        scene.add(techMeme);
+
+        // Programming quote
+        const programmingQuote = createWallPoster(
+            '"First, solve the problem.\nThen, write the code."\n- John Johnson',
+            3, 2, 32, '#f8f8f8', '#2c3e50'
+        );
+        programmingQuote.position.set(14.9, 2.5, -3);
+        programmingQuote.rotation.y = -Math.PI / 2;
+        scene.add(programmingQuote);
+
+        // Company logos wall (back wall near bookshelf)
+        const amazonLogo = createWallPoster(
+            "AMAZON\nAWS",
+            1.8, 1, 42, '#ff9900', '#232f3e'
+        );
+        amazonLogo.position.set(-8, 2.5, 14.9);
+        scene.add(amazonLogo);
+
+        const uwLogo = createWallPoster(
+            "UNIVERSITY OF\nWASHINGTON",
+            2.2, 1.2, 30, '#4b2e83', '#b7a57a'
+        );
+        uwLogo.position.set(-5, 2.5, 14.9);
+        scene.add(uwLogo);
+
+        // Y Combinator achievement
+        const ycPoster = createWallPoster(
+            "Y COMBINATOR\nAI STARTUP SCHOOL\nTOP 2000 WORLDWIDE",
+            2.5, 1.8, 25, '#ff6600', '#ffffff'
+        );
+        ycPoster.position.set(-2, 2.5, 14.9);
+        scene.add(ycPoster);
+
+        // Ambient Elements
+
+        // Digital Clock on desk
+        function createDigitalClock() {
+            const clockGroup = new THREE.Group();
+
+            // Clock base
+            const clockBase = new THREE.Mesh(
+                new THREE.BoxGeometry(1, 0.4, 0.3),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            clockGroup.add(clockBase);
+
+            // Screen
+            const screenGeometry = new THREE.PlaneGeometry(0.8, 0.25);
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 60;
+            const ctx = canvas.getContext('2d');
+
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff00';
+                ctx.font = 'bold 24px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(timeString, canvas.width/2, canvas.height/2);
+
+                if (clockTexture) clockTexture.needsUpdate = true;
+            }
+
+            const clockTexture = new THREE.CanvasTexture(canvas);
+            const screen = new THREE.Mesh(screenGeometry,
+                new THREE.MeshStandardMaterial({ map: clockTexture, emissive: 0x002200 })
+            );
+            screen.position.set(0, 0.05, 0.16);
+            clockGroup.add(screen);
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            return clockGroup;
+        }
+
+        const digitalClock = createDigitalClock();
+        digitalClock.position.set(3, 1.25, -1);
+        scene.add(digitalClock);
+
+        // Lava Lamp
+        function createLavaLamp() {
+            const lavaGroup = new THREE.Group();
+
+            // Base
+            const base = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.4, 0.5, 0.3, 16),
+                new THREE.MeshStandardMaterial({ color: 0x2a2a2a })
+            );
+            base.position.y = 0.15;
+            lavaGroup.add(base);
+
+            // Glass container
+            const glass = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.35, 0.35, 2.5, 16),
+                new THREE.MeshStandardMaterial({
+                    color: 0x0044aa,
+                    transparent: true,
+                    opacity: 0.3
+                })
+            );
+            glass.position.y = 1.55;
+            lavaGroup.add(glass);
+
+            // Floating lava blobs
+            const blobColors = [0xff4444, 0xff6666, 0xff8888];
+            for (let i = 0; i < 5; i++) {
+                const blob = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.1 + Math.random() * 0.1, 8, 6),
+                    new THREE.MeshStandardMaterial({
+                        color: blobColors[i % blobColors.length],
+                        emissive: 0x220000
+                    })
+                );
+                blob.position.set(
+                    (Math.random() - 0.5) * 0.4,
+                    0.5 + Math.random() * 2,
+                    (Math.random() - 0.5) * 0.4
+                );
+                blob.userData = {
+                    speed: 0.01 + Math.random() * 0.02,
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    baseY: blob.position.y
+                };
+                lavaGroup.add(blob);
+            }
+
+            // Top cap
+            const cap = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.3, 0.35, 0.2, 16),
+                new THREE.MeshStandardMaterial({ color: 0x2a2a2a })
+            );
+            cap.position.y = 2.9;
+            lavaGroup.add(cap);
+
+            return lavaGroup;
+        }
+
+        const lavaLamp = createLavaLamp();
+        lavaLamp.position.set(-3, 0, -1.5);
+        scene.add(lavaLamp);
+
+        // String Lights around the room
+        function createStringLights() {
+            const lightGroup = new THREE.Group();
+            const lightColors = [0xffff88, 0xff8888, 0x88ff88, 0x8888ff, 0xff88ff];
+
+            // Lights along the ceiling edges
+            const positions = [
+                // Back wall ceiling edge
+                { start: [-14, 4, 14], end: [14, 4, 14] },
+                // Side walls
+                { start: [-14, 4, 14], end: [-14, 4, -14] },
+                { start: [14, 4, 14], end: [14, 4, -14] }
+            ];
+
+            positions.forEach(({ start, end }) => {
+                const distance = Math.sqrt(
+                    Math.pow(end[0] - start[0], 2) +
+                    Math.pow(end[1] - start[1], 2) +
+                    Math.pow(end[2] - start[2], 2)
+                );
+                const numLights = Math.floor(distance / 2);
+
+                for (let i = 0; i < numLights; i++) {
+                    const t = i / (numLights - 1);
+                    const x = start[0] + (end[0] - start[0]) * t;
+                    const y = start[1] + (end[1] - start[1]) * t + Math.sin(t * Math.PI * 6) * 0.3;
+                    const z = start[2] + (end[2] - start[2]) * t;
+
+                    const bulb = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.1, 8, 6),
+                        new THREE.MeshStandardMaterial({
+                            color: lightColors[i % lightColors.length],
+                            emissive: lightColors[i % lightColors.length],
+                            emissiveIntensity: 0.3
+                        })
+                    );
+                    bulb.position.set(x, y, z);
+                    lightGroup.add(bulb);
+
+                    // Add tiny point light for each bulb
+                    const pointLight = new THREE.PointLight(lightColors[i % lightColors.length], 0.5, 3);
+                    pointLight.position.copy(bulb.position);
+                    lightGroup.add(pointLight);
+                }
+            });
+
+            return lightGroup;
+        }
+
+        const stringLights = createStringLights();
+        scene.add(stringLights);
+
+        // Floating dust particles
+        function createDustParticles() {
+            const particleCount = 50;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 30;     // x
+                positions[i + 1] = Math.random() * 5;          // y
+                positions[i + 2] = (Math.random() - 0.5) * 30; // z
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.02,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            return new THREE.Points(geometry, material);
+        }
+
+        const dustParticles = createDustParticles();
+        scene.add(dustParticles);
+
+        // Tech-Themed Decorations
+
+        // Server Rack (corner near desk)
+        function createServerRack() {
+            const rackGroup = new THREE.Group();
+
+            // Main frame
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 4, 0.8),
+                new THREE.MeshStandardMaterial({ color: 0x2a2a2a })
+            );
+            frame.position.y = 2;
+            rackGroup.add(frame);
+
+            // Server units (4 levels)
+            for (let i = 0; i < 4; i++) {
+                const server = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.1, 0.3, 0.7),
+                    new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+                );
+                server.position.y = 0.8 + i * 0.8;
+                rackGroup.add(server);
+
+                // LED indicators
+                for (let j = 0; j < 3; j++) {
+                    const led = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.02, 8, 6),
+                        new THREE.MeshStandardMaterial({
+                            color: j === 0 ? 0x00ff00 : (j === 1 ? 0xffff00 : 0xff0000),
+                            emissive: j === 0 ? 0x004400 : (j === 1 ? 0x444400 : 0x440000),
+                            emissiveIntensity: 0.5
+                        })
+                    );
+                    led.position.set(-0.4 + j * 0.1, 0.8 + i * 0.8, 0.36);
+                    rackGroup.add(led);
+                }
+
+                // Ventilation grilles
+                for (let k = 0; k < 8; k++) {
+                    const vent = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.08, 0.02, 0.01),
+                        new THREE.MeshStandardMaterial({ color: 0x333333 })
+                    );
+                    vent.position.set(-0.3 + k * 0.08, 0.8 + i * 0.8, 0.36);
+                    rackGroup.add(vent);
+                }
+            }
+
+            return rackGroup;
+        }
+
+        const serverRack = createServerRack();
+        serverRack.position.set(8, 0, -12);
+        scene.add(serverRack);
+
+        // 3D Printer
+        function create3DPrinter() {
+            const printerGroup = new THREE.Group();
+
+            // Base/bed
+            const base = new THREE.Mesh(
+                new THREE.BoxGeometry(1.5, 0.2, 1.5),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            base.position.y = 0.1;
+            printerGroup.add(base);
+
+            // Print bed
+            const bed = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.05, 1.2),
+                new THREE.MeshStandardMaterial({ color: 0x888888 })
+            );
+            bed.position.y = 0.225;
+            printerGroup.add(bed);
+
+            // Vertical frame
+            const leftFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 2, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x444444 })
+            );
+            leftFrame.position.set(-0.7, 1, -0.7);
+            printerGroup.add(leftFrame);
+
+            const rightFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 2, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x444444 })
+            );
+            rightFrame.position.set(0.7, 1, -0.7);
+            printerGroup.add(rightFrame);
+
+            // Top frame
+            const topFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(1.4, 0.05, 0.05),
+                new THREE.MeshStandardMaterial({ color: 0x444444 })
+            );
+            topFrame.position.set(0, 2, -0.7);
+            printerGroup.add(topFrame);
+
+            // Print head assembly
+            const printHead = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 0.2, 0.3),
+                new THREE.MeshStandardMaterial({ color: 0x222222 })
+            );
+            printHead.position.set(0, 1.5, 0);
+            printHead.userData = {
+                baseX: 0,
+                moving: true,
+                speed: 0.02,
+                direction: 1
+            };
+            printerGroup.add(printHead);
+
+            // Extruder nozzle
+            const nozzle = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.02, 0.05, 0.1, 8),
+                new THREE.MeshStandardMaterial({ color: 0xffaa00 })
+            );
+            nozzle.position.set(0, 1.35, 0);
+            printHead.add(nozzle);
+
+            // Printed object (small cube being printed)
+            const printedObject = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 0.2, 0.3),
+                new THREE.MeshStandardMaterial({ color: 0x0066cc })
+            );
+            printedObject.position.set(0, 0.35, 0);
+            printerGroup.add(printedObject);
+
+            return printerGroup;
+        }
+
+        const printer3D = create3DPrinter();
+        printer3D.position.set(-8, 1, -10);
+        scene.add(printer3D);
+
+        // Drone Display
+        function createDrone() {
+            const droneGroup = new THREE.Group();
+
+            // Main body
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.2, 0.8),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            droneGroup.add(body);
+
+            // Camera gimbal
+            const camera = new THREE.Mesh(
+                new THREE.SphereGeometry(0.15, 12, 8),
+                new THREE.MeshStandardMaterial({ color: 0x222222 })
+            );
+            camera.position.y = -0.2;
+            droneGroup.add(camera);
+
+            // Arms and propellers
+            const armPositions = [
+                { x: 0.6, z: 0.6 },
+                { x: -0.6, z: 0.6 },
+                { x: 0.6, z: -0.6 },
+                { x: -0.6, z: -0.6 }
+            ];
+
+            armPositions.forEach((pos, index) => {
+                // Arm
+                const arm = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.5, 0.05, 0.05),
+                    new THREE.MeshStandardMaterial({ color: 0x444444 })
+                );
+                arm.position.set(pos.x * 0.8, 0, pos.z * 0.8);
+                arm.rotation.y = Math.atan2(pos.z, pos.x);
+                droneGroup.add(arm);
+
+                // Motor
+                const motor = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.08, 0.08, 0.1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0x222222 })
+                );
+                motor.position.set(pos.x, 0.05, pos.z);
+                droneGroup.add(motor);
+
+                // Propeller
+                const propeller = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.02, 0.02),
+                    new THREE.MeshStandardMaterial({ color: 0x666666 })
+                );
+                propeller.position.set(pos.x, 0.12, pos.z);
+                propeller.userData = { speed: 0.3 + index * 0.1 };
+                droneGroup.add(propeller);
+            });
+
+            return droneGroup;
+        }
+
+        const drone = createDrone();
+        drone.position.set(5, 3.5, -8);
+        scene.add(drone);
+
+        // Raspberry Pi cluster on desk
+        function createRaspberryPiCluster() {
+            const clusterGroup = new THREE.Group();
+
+            // Acrylic case
+            const caseFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 1.2, 0.6),
+                new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.3
+                })
+            );
+            clusterGroup.add(caseFrame);
+
+            // Pi boards (stack of 4)
+            for (let i = 0; i < 4; i++) {
+                const pi = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.7, 0.05, 0.5),
+                    new THREE.MeshStandardMaterial({ color: 0x228B22 })
+                );
+                pi.position.y = -0.4 + i * 0.2;
+                clusterGroup.add(pi);
+
+                // GPIO pins
+                const gpio = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.3, 0.08, 0.05),
+                    new THREE.MeshStandardMaterial({ color: 0x333333 })
+                );
+                gpio.position.set(0.15, -0.4 + i * 0.2 + 0.06, 0.2);
+                clusterGroup.add(gpio);
+
+                // Status LED
+                const statusLed = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.02, 8, 6),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x00ff00,
+                        emissive: 0x004400,
+                        emissiveIntensity: 0.6
+                    })
+                );
+                statusLed.position.set(-0.2, -0.4 + i * 0.2 + 0.03, 0.2);
+                clusterGroup.add(statusLed);
+            }
+
+            return clusterGroup;
+        }
+
+        const piCluster = createRaspberryPiCluster();
+        piCluster.position.set(2, 1.8, -2);
+        scene.add(piCluster);
 
         console.log('Room elements added successfully!');
 
@@ -1840,9 +2351,7 @@
             console.log(`Added ${collisionObjects.length} collision objects`);
         }
 
-        // Get references to input elements early
-        const customQuestionInput = document.getElementById('custom-question-input');
-        const customQuestionSubmit = document.getElementById('custom-question-submit');
+        // Custom question input removed - using predetermined questions only
 
         // Player controls
         const player = {
@@ -1858,18 +2367,7 @@
         const keys = {};
 
         document.addEventListener('keydown', (e) => {
-            // Don't process game controls if typing in the custom question input
-            if (document.activeElement === customQuestionInput) {
-                // Only process ESC when typing
-                if (e.key === 'Escape') {
-                    dialogueBox.style.display = 'none';
-                    currentCharacter = null;
-                    if (document.pointerLockElement === renderer.domElement) {
-                        document.exitPointerLock();
-                    }
-                }
-                return;
-            }
+            // Custom input removed - no need to check active element
 
             keys[e.key.toLowerCase()] = true;
             keys[e.key] = true; // Store original key for arrow keys
@@ -1907,10 +2405,7 @@
         });
 
         document.addEventListener('keyup', (e) => {
-            // Don't process game controls if typing in the custom question input
-            if (document.activeElement === customQuestionInput) {
-                return;
-            }
+            // Custom input removed - no need to check active element
 
             keys[e.key.toLowerCase()] = false;
             keys[e.key] = false; // Clear original key for arrow keys
@@ -2008,60 +2503,154 @@
         let nearbyCharacter = null;
 
         function generateDialogueOptions(character) {
-            // Recruitment-focused questions
-            const recruitmentQuestions = [
-                // About background and experience
-                "Tell me about yourself",
-                "What's your work history?",
-                "Tell me about your skills and expertise",
-                "What are your strongest programming languages?",
-                "What's your educational background?",
-                "Walk me through your resume",
-
-                // About projects and achievements
-                "What's your most impressive project?",
-                "Tell me about a challenging problem you solved",
-                "What's a project you're proud of?",
-                "How do you approach learning new technologies?",
-                "What's your development process like?",
-                "Tell me about your coding philosophy",
-
-                // About career goals and motivation
-                "What are your career goals?",
-                "Why are you interested in this field?",
-                "What motivates you as a developer?",
-                "Where do you see yourself in 5 years?",
-                "What kind of role are you looking for?",
-                "What's your ideal work environment?",
-
-                // Technical and problem-solving
-                "How do you debug complex issues?",
-                "Tell me about your testing approach",
-                "How do you stay current with technology?",
-                "What's your preferred tech stack?",
-                "How do you handle technical debt?",
-                "Describe your code review process",
-
-                // Soft skills and teamwork
-                "How do you work in a team?",
-                "Tell me about a time you led a project",
-                "How do you handle disagreements with teammates?",
-                "What's your communication style?",
-                "How do you mentor junior developers?",
-                "Describe your leadership style",
-
-                // Fun and personality
-                "What do you do outside of work?",
-                "What's your favorite part of programming?",
-                "Tell me something interesting about yourself",
-                "What's your biggest achievement?",
-                "What challenges are you looking for?",
-                "What questions do you have for me?"
+            // Priority questions (most important - shown first)
+            const priorityQuestions = [
+                {
+                    question: "Tell me about yourself",
+                    response: "I'm Josh Chou, a Computer Science student at UW with a 3.8 GPA, graduating in June 2026. I'm passionate about building scalable systems and have experience at AWS where I built a real-time fraud detection system processing 50M daily logs. I'm also a Y Combinator AI Startup School alumni and currently work as a founding engineer at Affable BPM while serving as CTO of OdysseyHydration.",
+                    priority: true
+                },
+                {
+                    question: "What's your most impressive project?",
+                    response: "My AWS real-time fraud detection system stands out - it processes 50 million AWS activity logs daily and reduced fraud detection time from 15-60 minutes to seconds, a 95% improvement. I built it using TypeScript, GraphQL, and event-driven architecture with Lambda, Kinesis, and SQS. The project earned me the AWS Spark Fair Award as the top-performing intern across all disciplines.",
+                    priority: true
+                },
+                {
+                    question: "What are your strongest programming languages?",
+                    response: "My strongest languages are Java, Python, and TypeScript/JavaScript. I've used Java extensively in distributed systems coursework, Python for machine learning projects and backend development, and TypeScript for building scalable web applications at AWS. I'm also proficient in C/C++ for systems programming, having built a search engine and distributed key-value store.",
+                    priority: true
+                },
+                {
+                    question: "Tell me about a challenging problem you solved",
+                    response: "At AWS, I faced the challenge of processing massive CloudTrail logs in real-time for fraud detection. The existing system had 15-60 minute delays. I designed an event-driven architecture using Lambda functions triggered by Kinesis streams, with SQS for reliable message queuing and SNS for instant alerts. The key was implementing exactly-once processing semantics and handling backpressure during traffic spikes.",
+                    priority: true
+                }
             ];
 
-            // Select 4 random questions
-            const shuffled = recruitmentQuestions.sort(() => Math.random() - 0.5);
-            return shuffled.slice(0, 4);
+            // Additional questions (shown after priority ones)
+            const additionalQuestions = [
+                {
+                    question: "Where do you see yourself in 5 years?",
+                    response: "In 5 years, I see myself as a senior software engineer or tech lead at a company building impactful products at scale. I want to continue growing my expertise in distributed systems and machine learning while mentoring junior developers. My experience as a founding engineer and CTO has shown me I enjoy both the technical challenges and the strategic thinking involved in building products from the ground up."
+                },
+                {
+                    question: "How do you approach learning new technologies?",
+                    response: "I learn by building projects and solving real problems. When I wanted to learn computer vision, I built TestDrive.AI to automate driving test evaluations. For distributed systems, I implemented a Paxos-based key-value store. I also stay current through technical blogs, participate in hackathons like DubHacks where I won first place, and completed programs like Y Combinator's AI Startup School."
+                },
+                {
+                    question: "What's your ideal work environment?",
+                    response: "I thrive in collaborative environments where I can work on challenging technical problems with smart people. My ideal environment has a strong engineering culture with code reviews, proper testing, and continuous learning. I enjoy having autonomy to architect solutions while also being able to collaborate closely with team members. My experience at startups has shown me I like fast-paced environments where I can wear multiple hats."
+                },
+                {
+                    question: "How do you work in a team?",
+                    response: "I believe in clear communication and shared ownership. At Affable BPM, I collaborate closely with the founder on product strategy while leading technical implementations. I enjoy mentoring others - I've helped guide junior developers through complex problems. I always advocate for my ideas but stay open to feedback, and I believe code reviews and documentation are crucial for team success."
+                },
+                {
+                    question: "What motivates you as a developer?",
+                    response: "I'm motivated by solving complex problems that have real impact. Seeing my fraud detection system protect AWS customers from security threats, or knowing TestDrive.AI could improve road safety - that's incredibly fulfilling. I also love the continuous learning aspect of tech. Every project teaches me something new, whether it's a better algorithm, a new architecture pattern, or a different way to think about user experience."
+                },
+                {
+                    question: "What questions do you have for me?",
+                    response: "I'd love to know more about the technical challenges your team is working on and what a typical project lifecycle looks like here. What opportunities are there for growth and learning new technologies? Also, how does the team approach code quality and technical decision-making? And finally, what do you enjoy most about working here?"
+                },
+                {
+                    question: "Walk me through your resume",
+                    response: "I'm currently a CS student at UW graduating in June 2026 with a 3.8 GPA. I've had two internships at AWS - most recently as an SDE intern where I built a fraud detection system that won the Spark Fair Award. I'm also a founding engineer at Affable BPM and CTO of OdysseyHydration. My notable projects include TestDrive.AI for automated driving tests, a distributed key-value store, and WakeBox which won first place at DubHacks with 12,000+ competitors."
+                },
+                {
+                    question: "What's your educational background?",
+                    response: "I'm pursuing a Bachelor of Science in Computer Science at the University of Washington, with a minor in Neural Computation and Entrepreneurship, graduating in June 2026. I maintain a 3.8 GPA and have taken courses in Data Structures, Distributed Systems, Machine Learning, and Advanced Algorithms. I was also selected for Y Combinator's AI Startup School as one of the top 2000 CS students globally specializing in AI."
+                },
+                {
+                    question: "How do you handle pressure and deadlines?",
+                    response: "I thrive under pressure and use it as motivation. During my AWS internship, I had tight deadlines to deliver the fraud detection system, so I broke it into manageable milestones and communicated progress regularly. At hackathons like DubHacks, I work well in time-constrained environments. I prioritize tasks, focus on MVP functionality first, then iterate. Good planning and clear communication with stakeholders are key to managing pressure effectively."
+                },
+                {
+                    question: "What's your biggest weakness?",
+                    response: "I sometimes spend too much time perfecting code when I should ship an MVP first. Early in my career, I'd over-engineer solutions trying to account for every edge case. I've learned to balance code quality with delivery speed by setting clear definitions of 'done' and iterating based on feedback. Now I focus on building something that works well, then refining it based on real usage patterns."
+                },
+                {
+                    question: "Why are you interested in this role?",
+                    response: "I'm drawn to roles where I can work on challenging technical problems that have real business impact. Your company's focus on [specific area] aligns perfectly with my experience in distributed systems and machine learning. I'm excited about the opportunity to contribute to scalable solutions while continuing to grow as an engineer. The collaborative culture and emphasis on innovation really appeal to me."
+                },
+                {
+                    question: "Tell me about your leadership experience",
+                    response: "As CTO of OdysseyHydration, I lead technical strategy and development decisions. At Affable BPM, I guide the technical roadmap and mentor other developers. During my AWS internship, I took ownership of the fraud detection project from conception to deployment. I believe leadership is about empowering others - I focus on clear communication, setting realistic expectations, and creating an environment where everyone can contribute their best work."
+                },
+                {
+                    question: "How do you stay current with technology?",
+                    response: "I stay current through a combination of hands-on projects, reading technical blogs, and engaging with the developer community. I follow key figures in distributed systems and machine learning, participate in hackathons, and contribute to open source when possible. I also learn by teaching - explaining concepts to others helps solidify my understanding. Programs like Y Combinator's AI Startup School keep me connected to cutting-edge developments."
+                },
+                {
+                    question: "What do you do outside of programming?",
+                    response: "Outside of programming, I enjoy staying active and exploring new places. I like hiking and trying out different restaurants - it helps me think creatively and recharge. I'm also interested in entrepreneurship and product strategy, which ties into my technical work. I find that stepping away from code gives me fresh perspectives on problem-solving and helps me come back with new ideas."
+                },
+                {
+                    question: "How do you approach debugging complex issues?",
+                    response: "I approach debugging systematically. First, I reproduce the issue consistently, then I isolate variables to narrow down the root cause. I use logging strategically, examine stack traces, and leverage debugging tools like Chrome DevTools or profilers. I also think through the data flow and check assumptions. Documentation is key - I write down what I've tried so I don't repeat steps, and I share findings with the team for knowledge sharing."
+                }
+            ];
+
+            return { priorityQuestions, additionalQuestions };
+        }
+
+        function displayQuestionOptions(character, allQuestions) {
+            const dialogueOptions = document.getElementById('dialogue-options');
+            dialogueOptions.innerHTML = '';
+
+            // Get currently shown questions
+            let currentlyShown = character.userData.shownQuestions || [];
+
+            // If we have less than 4 shown questions, we need to add more
+            if (currentlyShown.length < 4) {
+                const askedQuestions = character.userData.conversations.map(conv => conv.user);
+                const availableToShow = character.userData.availableQuestions.filter(q =>
+                    !askedQuestions.includes(q.question) &&
+                    !currentlyShown.includes(q.question)
+                );
+
+                // Add priority questions first, then random additional ones
+                const priorityToShow = availableToShow.filter(q => q.priority);
+                const additionalToShow = availableToShow.filter(q => !q.priority);
+
+                // Fill up to 4 questions, priority first
+                while (currentlyShown.length < 4 && (priorityToShow.length > 0 || additionalToShow.length > 0)) {
+                    if (priorityToShow.length > 0) {
+                        currentlyShown.push(priorityToShow.shift().question);
+                    } else if (additionalToShow.length > 0) {
+                        // Random selection from additional questions
+                        const randomIndex = Math.floor(Math.random() * additionalToShow.length);
+                        currentlyShown.push(additionalToShow.splice(randomIndex, 1)[0].question);
+                    }
+                }
+
+                character.userData.shownQuestions = currentlyShown;
+            }
+
+            // Display the 4 current questions
+            currentlyShown.forEach(questionText => {
+                const questionData = allQuestions.find(q => q.question === questionText);
+                if (questionData) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'dialogue-option';
+                    optionDiv.textContent = questionData.question;
+                    optionDiv.onclick = () => selectQuestionAndRotate(questionData, character, allQuestions);
+                    dialogueOptions.appendChild(optionDiv);
+                }
+            });
+
+            // If no questions are available, show reset option
+            if (currentlyShown.length === 0) {
+                const resetDiv = document.createElement('div');
+                resetDiv.className = 'dialogue-option';
+                resetDiv.textContent = "Ask me more questions (reset conversation)";
+                resetDiv.onclick = () => {
+                    character.userData.conversations = [];
+                    character.userData.shownQuestions = [];
+                    openDialogue(character);
+                };
+                dialogueOptions.appendChild(resetDiv);
+            }
         }
 
         function openDialogue(character) {
@@ -2089,62 +2678,96 @@
                 dialogueContent.innerHTML = `<p><strong>You:</strong> ${lastConv.user}</p><p><strong>${character.userData.name}:</strong> ${lastConv.response}</p>`;
             }
 
-            // Generate dialogue options
-            const options = generateDialogueOptions(character);
-            dialogueOptions.innerHTML = '';
+            // Initialize question tracking if not exists
+            if (!character.userData.shownQuestions) {
+                character.userData.shownQuestions = [];
+                character.userData.availableQuestions = [];
+            }
 
-            options.forEach(option => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'dialogue-option';
-                optionDiv.textContent = option;
-                optionDiv.onclick = () => selectOption(option);
-                dialogueOptions.appendChild(optionDiv);
-            });
+            // Generate initial question pool
+            const { priorityQuestions, additionalQuestions } = generateDialogueOptions(character);
+            const allQuestions = [...priorityQuestions, ...additionalQuestions];
 
-            // Clear custom question input
-            document.getElementById('custom-question-input').value = '';
+            // Initialize available questions pool if empty
+            if (character.userData.availableQuestions.length === 0) {
+                character.userData.availableQuestions = [...allQuestions];
+            }
 
-            // Focus the input for easy typing
-            setTimeout(() => {
-                document.getElementById('custom-question-input').focus();
-            }, 100);
+            // Display initial 4 questions (priority first)
+            displayQuestionOptions(character, allQuestions);
+
+            // No custom input needed - only predetermined questions
         }
 
-        async function selectOption(option) {
+        async function selectQuestionAndRotate(questionData, character, allQuestions) {
+            if (!character) return;
+
+            // Show selected question
+            dialogueContent.innerHTML += `<p><strong>You:</strong> ${questionData.question}</p>`;
+            dialogueContent.innerHTML += `<p><strong>${character.userData.name}:</strong> <span class="loading"></span></p>`;
+
+            // Scroll to bottom of dialogue
+            dialogueContent.scrollTop = dialogueContent.scrollHeight;
+
+            // Disable options during loading
+            const dialogueOptions = document.getElementById('dialogue-options');
+            dialogueOptions.style.pointerEvents = 'none';
+            dialogueOptions.style.opacity = '0.5';
+
+            // Simulate thinking time
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Update conversation
+            character.userData.conversations.push({
+                user: questionData.question,
+                response: questionData.response
+            });
+
+            // Update display with predetermined response
+            dialogueContent.innerHTML = dialogueContent.innerHTML.replace(
+                '<span class="loading"></span>',
+                questionData.response
+            );
+
+            // Scroll to bottom
+            dialogueContent.scrollTop = dialogueContent.scrollHeight;
+
+            // Random dialogue events
+            if (Math.random() < 0.2) {
+                createFloatingText('💡', character.position);
+            }
+
+            // Then rotate the question out and bring in a new one
+            rotateQuestion(questionData.question, character, allQuestions);
+        }
+
+        async function selectOption(question, response) {
             if (!currentCharacter) return;
 
-            // Show selected option
-            dialogueContent.innerHTML += `<p><strong>You:</strong> ${option}</p>`;
+            // Show selected question
+            dialogueContent.innerHTML += `<p><strong>You:</strong> ${question}</p>`;
             dialogueContent.innerHTML += `<p><strong>${currentCharacter.userData.name}:</strong> <span class="loading"></span></p>`;
 
             // Scroll to bottom of dialogue
             dialogueContent.scrollTop = dialogueContent.scrollHeight;
 
-            // Get references to custom question elements
-            const customQuestionInput = document.getElementById('custom-question-input');
-            const customQuestionSubmit = document.getElementById('custom-question-submit');
-
             // Disable options during loading
             dialogueOptions.style.pointerEvents = 'none';
             dialogueOptions.style.opacity = '0.5';
-            customQuestionInput.disabled = true;
-            customQuestionSubmit.disabled = true;
 
-            let responseText = "";
-
-            // Generate response based on the question
-            responseText = generateJoshResponse(option);
+            // Simulate thinking time
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Update conversation
             currentCharacter.userData.conversations.push({
-                user: option,
-                response: responseText
+                user: question,
+                response: response
             });
 
-            // Update display
+            // Update display with predetermined response
             dialogueContent.innerHTML = dialogueContent.innerHTML.replace(
                 '<span class="loading"></span>',
-                responseText
+                response
             );
 
             // Scroll to bottom
@@ -2155,116 +2778,71 @@
                 createFloatingText('💡', currentCharacter.position);
             }
 
-            // Generate new options
-            const newOptions = generateDialogueOptions(currentCharacter);
+            // Re-enable options - rotation will be handled after this
+            const askedQuestions = currentCharacter.userData.conversations.map(conv => conv.user);
+            const availableQuestions = allQuestions.filter(data => !askedQuestions.includes(data.question));
+
             dialogueOptions.innerHTML = '';
 
-            newOptions.forEach(opt => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'dialogue-option';
-                optionDiv.textContent = opt;
-                optionDiv.onclick = () => selectOption(opt);
-                dialogueOptions.appendChild(optionDiv);
-            });
+            if (availableQuestions.length > 0) {
+                availableQuestions.forEach(data => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'dialogue-option';
+                    optionDiv.textContent = data.question;
+                    optionDiv.onclick = () => selectOption(data.question, data.response);
+                    dialogueOptions.appendChild(optionDiv);
+                });
+            } else {
+                // Show a reset option if all questions have been asked
+                const resetDiv = document.createElement('div');
+                resetDiv.className = 'dialogue-option';
+                resetDiv.textContent = "Ask me more questions (reset conversation)";
+                resetDiv.onclick = () => {
+                    currentCharacter.userData.conversations = [];
+                    openDialogue(currentCharacter);
+                };
+                dialogueOptions.appendChild(resetDiv);
+            }
 
             // Re-enable options
             dialogueOptions.style.pointerEvents = 'auto';
             dialogueOptions.style.opacity = '1';
-            customQuestionInput.disabled = false;
-            customQuestionSubmit.disabled = false;
-            customQuestionInput.focus();
         }
 
-        // Josh's response generator
-        function generateJoshResponse(question) {
-            const responses = {
-                // About yourself / background
-                'tell me about yourself': [
-                    "I'm a passionate software engineer with a great product sense. I have experience in full-stack development, cloud technologies, and product management. I love solving complex problems and growing businesses by building innovative solutions that make a real impact.",
-                ],
+        function rotateQuestion(answeredQuestion, character, allQuestions) {
+            // Remove the answered question from currently shown
+            character.userData.shownQuestions = character.userData.shownQuestions.filter(q => q !== answeredQuestion);
 
-                // Work history and experience
-                'work history': [
-                    "I've worked across various industries, from startups to enterprise companies, gaining experience in full-stack development, cloud architecture, and team leadership. Each role has taught me valuable lessons about building scalable, maintainable software.",
-                    "My career has taken me through different domains - web development, data engineering, and DevOps. I've led teams, architected systems, and always focused on delivering high-quality solutions that solve real business problems.",
-                    "I've had the opportunity to work on diverse projects, from building responsive web applications to designing distributed systems. My experience includes both technical leadership and hands-on development across multiple technology stacks."
-                ],
+            // Find a new question to add
+            const askedQuestions = character.userData.conversations.map(conv => conv.user);
+            const availableToShow = character.userData.availableQuestions.filter(q =>
+                !askedQuestions.includes(q.question) &&
+                !character.userData.shownQuestions.includes(q.question)
+            );
 
-                // Skills and expertise
-                'skills': [
-                    "I'm proficient in JavaScript/TypeScript, Python, and Java, with strong experience in React, Node.js, and cloud platforms like AWS and Azure. I also have expertise in database design, API development, and DevOps practices.",
-                    "My technical skills span front-end frameworks like React and Vue.js, backend technologies including Node.js and Django, and cloud infrastructure. I'm also experienced with Docker, Kubernetes, and CI/CD pipelines.",
-                    "I specialize in full-stack development with expertise in modern JavaScript frameworks, Python for data processing and APIs, and cloud-native architectures. I'm also skilled in database optimization and system design."
-                ],
+            // Add a new question if available
+            if (availableToShow.length > 0) {
+                // Prioritize unasked priority questions, then random additional ones
+                const priorityToShow = availableToShow.filter(q => q.priority);
+                if (priorityToShow.length > 0) {
+                    character.userData.shownQuestions.push(priorityToShow[0].question);
+                } else {
+                    // Random selection from additional questions
+                    const randomIndex = Math.floor(Math.random() * availableToShow.length);
+                    character.userData.shownQuestions.push(availableToShow[randomIndex].question);
+                }
+            }
 
-                // Programming languages
-                'programming languages': [
-                    "JavaScript/TypeScript is my go-to for web development, Python for data science and backend services, and I also work with Java for enterprise applications. I pick up new languages quickly based on project needs.",
-                    "I'm strongest in JavaScript and Python, but I've also worked extensively with Java, Go, and SQL. I believe in choosing the right tool for the job and I'm always eager to learn new languages.",
-                    "JavaScript and Python are my primary languages, but I'm comfortable working across the stack. I've used Java for enterprise development, SQL for database work, and I'm always exploring new technologies."
-                ],
+            // Refresh the displayed options and re-enable them
+            displayQuestionOptions(character, allQuestions);
 
-                // Projects
-                'project': [
-                    "I built a real-time data visualization platform that processes millions of events per day, using React, Node.js, and Apache Kafka. It reduced data analysis time by 80% and is now used by teams across the organization.",
-                    "One of my favorite projects was developing a machine learning pipeline that automated content moderation, reducing manual review time by 70%. It involved Python, TensorFlow, and AWS services for scalable deployment.",
-                    "I created a microservices architecture that improved system reliability by 99.9% uptime while reducing deployment time from hours to minutes. The project involved Docker, Kubernetes, and extensive automation."
-                ],
-
-                // Challenging problems
-                'challenging problem': [
-                    "I once had to optimize a database query that was taking 30+ seconds and bringing down our application. Through query optimization, indexing strategies, and caching, I reduced it to under 200ms.",
-                    "We had a memory leak in a Node.js application that was causing production crashes. I used profiling tools, analyzed heap dumps, and implemented proper memory management to solve the issue permanently.",
-                    "I solved a complex race condition in a distributed system by implementing proper locking mechanisms and redesigning the data flow. It required deep understanding of concurrency and system architecture."
-                ],
-
-                // Career goals
-                'career goals': [
-                    "I want to continue growing as a technical leader while staying hands-on with cutting-edge technologies. My goal is to build systems that scale and mentor other developers along the way.",
-                    "I'm focused on becoming a well-rounded engineering leader who can bridge the gap between technical excellence and business impact. I want to work on products that make a meaningful difference.",
-                    "My goal is to lead innovative projects that solve real-world problems while continuing to grow my technical expertise. I'm particularly interested in the intersection of AI and software engineering."
-                ],
-
-                // Motivation
-                'motivates': [
-                    "I'm motivated by the opportunity to solve complex problems and see the direct impact of my work. There's nothing quite like the feeling of building something from scratch and watching it help users accomplish their goals.",
-                    "What drives me is the constant learning and the collaborative nature of software development. Every project teaches me something new, and working with talented teams to build amazing products is incredibly fulfilling.",
-                    "I'm passionate about using technology to make people's lives better. Whether it's improving performance, adding new features, or solving technical challenges, I love the problem-solving aspect of development."
-                ],
-
-                // Technical approach
-                'debug': [
-                    "I approach debugging systematically - reproduce the issue, isolate variables, use logging and debugging tools, and test hypotheses. I also believe in writing comprehensive tests to prevent issues in the first place.",
-                    "My debugging process involves understanding the expected vs actual behavior, examining logs, using debugging tools, and thinking through the code flow. I also document solutions for the team's future reference.",
-                    "I start with gathering information about the issue, then use a combination of logging, debugging tools, and systematic elimination to identify the root cause. Prevention through good testing is equally important."
-                ],
-
-                // Default responses for general questions
-                'default': [
-                    "That's a great question! I love discussing technology and my experiences. Is there a particular area you'd like to dive deeper into?",
-                    "Thanks for asking! I'm passionate about software development and always enjoy sharing my experiences and learning from others.",
-                    "Interesting question! I believe in continuous learning and improvement, both in technical skills and in understanding how technology can solve real problems.",
-                    "I appreciate your curiosity! Feel free to ask me anything about my technical background, projects, or approach to software development."
-                ]
-            };
-
-            // Determine response based on question keywords
-            let responseKey = 'default';
-            const questionLower = question.toLowerCase();
-
-            if (questionLower.includes('yourself') || questionLower.includes('who are you')) responseKey = 'tell me about yourself';
-            else if (questionLower.includes('work history') || questionLower.includes('resume') || questionLower.includes('experience')) responseKey = 'work history';
-            else if (questionLower.includes('skills') || questionLower.includes('expertise') || questionLower.includes('technologies')) responseKey = 'skills';
-            else if (questionLower.includes('programming languages') || questionLower.includes('languages') || questionLower.includes('strongest')) responseKey = 'programming languages';
-            else if (questionLower.includes('project') || questionLower.includes('built') || questionLower.includes('impressive')) responseKey = 'project';
-            else if (questionLower.includes('challenging') || questionLower.includes('difficult') || questionLower.includes('problem')) responseKey = 'challenging problem';
-            else if (questionLower.includes('career goals') || questionLower.includes('future') || questionLower.includes('5 years')) responseKey = 'career goals';
-            else if (questionLower.includes('motivates') || questionLower.includes('motivation') || questionLower.includes('passionate')) responseKey = 'motivates';
-            else if (questionLower.includes('debug') || questionLower.includes('troubleshoot') || questionLower.includes('solve issues')) responseKey = 'debug';
-
-            const responseArray = responses[responseKey] || responses['default'];
-            return responseArray[Math.floor(Math.random() * responseArray.length)];
+            // Ensure options are re-enabled after rotation
+            const dialogueOptions = document.getElementById('dialogue-options');
+            dialogueOptions.style.pointerEvents = 'auto';
+            dialogueOptions.style.opacity = '1';
         }
+
+        // Predetermined responses are now handled in the generateDialogueOptions function
 
         // Close dialogue with Escape
         document.addEventListener('keydown', (e) => {
@@ -2285,24 +2863,7 @@
             }
         });
 
-        // Set up custom question handlers
-        customQuestionSubmit.addEventListener('click', () => {
-            const customQuestion = customQuestionInput.value.trim();
-            if (customQuestion && currentCharacter) {
-                selectOption(customQuestion);
-                customQuestionInput.value = '';
-            }
-        });
-
-        customQuestionInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const customQuestion = customQuestionInput.value.trim();
-                if (customQuestion && currentCharacter) {
-                    selectOption(customQuestion);
-                    customQuestionInput.value = '';
-                }
-            }
-        });
+        // Custom question handlers removed completely
 
         // Contact modal functionality
         const contactTab = document.getElementById('contact-tab');
@@ -2661,6 +3222,107 @@
                         interactionPrompt.style.display = 'none';
                     }
                 }
+            }
+
+            // Animate ambient elements
+            if (lavaLamp) {
+                // Animate lava blobs - slow floating motion
+                lavaLamp.children.forEach(child => {
+                    if (child.userData && child.userData.speed) {
+                        child.position.y += child.userData.speed * child.userData.direction;
+
+                        // Reverse direction at boundaries
+                        if (child.position.y > child.userData.baseY + 1.5) {
+                            child.userData.direction = -1;
+                        } else if (child.position.y < child.userData.baseY - 0.5) {
+                            child.userData.direction = 1;
+                        }
+
+                        // Add slight horizontal wobble
+                        child.position.x = Math.sin(Date.now() * 0.001 + child.userData.speed * 100) * 0.1;
+                        child.position.z = Math.cos(Date.now() * 0.0015 + child.userData.speed * 100) * 0.1;
+                    }
+                });
+            }
+
+            // Animate dust particles - slow drifting
+            if (dustParticles) {
+                const positions = dustParticles.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    // Slow upward drift
+                    positions[i + 1] += 0.01;
+
+                    // Gentle horizontal movement
+                    positions[i] += Math.sin(Date.now() * 0.0005 + i) * 0.002;
+                    positions[i + 2] += Math.cos(Date.now() * 0.0008 + i) * 0.002;
+
+                    // Reset particles that go too high
+                    if (positions[i + 1] > 6) {
+                        positions[i + 1] = 0;
+                        positions[i] = (Math.random() - 0.5) * 30;
+                        positions[i + 2] = (Math.random() - 0.5) * 30;
+                    }
+                }
+                dustParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Animate string lights - subtle color pulsing
+            if (stringLights) {
+                stringLights.children.forEach((child, index) => {
+                    if (child.material && child.material.emissive) {
+                        const intensity = 0.2 + Math.sin(Date.now() * 0.002 + index * 0.5) * 0.1;
+                        child.material.emissiveIntensity = intensity;
+                    }
+                });
+            }
+
+            // Animate tech elements
+            if (drone) {
+                // Gentle floating motion for drone
+                drone.position.y = 3.5 + Math.sin(Date.now() * 0.001) * 0.2;
+                drone.rotation.y += 0.005;
+
+                // Spin propellers
+                drone.children.forEach(child => {
+                    if (child.userData && child.userData.speed) {
+                        child.rotation.y += child.userData.speed;
+                    }
+                });
+            }
+
+            if (printer3D) {
+                // Animate 3D printer head movement
+                printer3D.children.forEach(child => {
+                    if (child.userData && child.userData.moving) {
+                        child.position.x += child.userData.speed * child.userData.direction;
+
+                        // Reverse direction at boundaries
+                        if (child.position.x > 0.5) {
+                            child.userData.direction = -1;
+                        } else if (child.position.x < -0.5) {
+                            child.userData.direction = 1;
+                        }
+                    }
+                });
+            }
+
+            if (serverRack) {
+                // Animate server LEDs - random blinking
+                serverRack.children.forEach(child => {
+                    if (child.material && child.material.emissive && Math.random() < 0.01) {
+                        child.material.emissiveIntensity = child.material.emissiveIntensity > 0.3 ? 0.1 : 0.5;
+                    }
+                });
+            }
+
+            if (piCluster) {
+                // Animate Pi cluster status LEDs
+                piCluster.children.forEach(child => {
+                    if (child.material && child.material.emissive) {
+                        const pulse = 0.4 + Math.sin(Date.now() * 0.003) * 0.2;
+                        child.material.emissiveIntensity = pulse;
+                    }
+                });
             }
 
             renderer.render(scene, camera);
